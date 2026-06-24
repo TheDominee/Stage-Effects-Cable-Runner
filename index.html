@@ -5,779 +5,1293 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Stage Effects — Cable Runner</title>
 <style>
-:root{--bg:#0d0d0f;--surface:#16161a;--surface2:#1e1e24;--surface3:#26262e;--border:#2a2a35;--border2:#363645;--accent:#f0a500;--accent-dim:rgba(240,165,0,.12);--text:#e4e4ec;--muted:#777788;--red:#e05555;--red-dim:rgba(224,85,85,.1);--green:#4ec97a;--green-dim:rgba(78,201,122,.1);--blue:#5599e8;--blue-dim:rgba(85,153,232,.1);--purple:#9966dd;--purple-dim:rgba(153,102,221,.1);--orange:#e88844;--orange-dim:rgba(232,136,68,.1);--phase1:#e85555;--phase2:#55aaee;--phase3:#eecc44;--r:5px;--r2:8px;--mono:'JetBrains Mono','Fira Mono',monospace}
+:root {
+  --bg: #0c0c0f;
+  --s1: #141417;
+  --s2: #1c1c21;
+  --s3: #242429;
+  --border: #2a2a32;
+  --border2: #38383f;
+  --accent: #f0a500;
+  --accent2: #c87800;
+  --text: #e4e4ec;
+  --muted: #74748a;
+  --muted2: #55556a;
+  --red: #e05555;
+  --green: #50c87a;
+  --blue: #5590e8;
+  --purple: #9060d8;
+  --r: 5px;
+  --mono: 'JetBrains Mono','Fira Mono',monospace;
+}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%}
-body{background:var(--bg);color:var(--text);font-family:'Inter',-apple-system,sans-serif;font-size:13px;display:flex;flex-direction:column}
-::-webkit-scrollbar{width:5px;height:5px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
-.header{display:flex;align-items:center;gap:12px;padding:10px 20px;background:var(--surface);border-bottom:1px solid var(--border);flex-shrink:0}
-.logo{width:28px;height:28px;background:var(--accent);border-radius:4px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:11px;color:#000;flex-shrink:0}
-.logo-text{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:500}
-.logo-text strong{color:var(--text);font-weight:700}
-.proj-name{background:transparent;border:none;border-bottom:1px solid transparent;color:var(--text);font-size:13px;font-weight:600;outline:none;padding:2px 6px;transition:border-color .15s;min-width:180px;margin-left:8px}
-.proj-name:hover,.proj-name:focus{border-bottom-color:var(--border2)}
-.hdr-actions{margin-left:auto;display:flex;gap:6px}
-.app{display:flex;flex:1;overflow:hidden}
-.sidebar{width:272px;flex-shrink:0;background:var(--surface);border-right:1px solid var(--border);overflow-y:auto;display:flex;flex-direction:column}
-.main{flex:1;overflow-y:auto;padding:20px}
-.sb-sec{padding:14px 16px;border-bottom:1px solid var(--border)}
-.sb-title{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:600;margin-bottom:11px}
-.drop-zone{border:2px dashed var(--border2);border-radius:var(--r2);padding:18px 12px;text-align:center;cursor:pointer;transition:all .15s}
-.drop-zone:hover,.drop-zone.over{border-color:var(--accent);background:var(--accent-dim)}
-.drop-zone input{display:none}.drop-icon{font-size:22px;margin-bottom:5px}.drop-zone strong{display:block;font-size:12px;margin-bottom:2px}.drop-zone p{font-size:11px;color:var(--muted)}
-.field{display:flex;flex-direction:column;gap:3px;margin-bottom:9px}
-.field label{font-size:10px;color:var(--muted);font-weight:500;letter-spacing:.04em}
+body{background:var(--bg);color:var(--text);font-family:'Inter',-apple-system,sans-serif;font-size:13px;display:flex;flex-direction:column;height:100vh;overflow:hidden}
+
+/* scrollbar */
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+
+/* ── Header ── */
+.hdr{display:flex;align-items:center;gap:12px;padding:10px 20px;background:var(--s1);border-bottom:1px solid var(--border);flex-shrink:0;min-height:48px}
+.hdr-logo{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);font-weight:700;white-space:nowrap}
+.hdr-logo span{color:var(--muted);font-weight:400}
+.hdr-name{background:transparent;border:none;border-bottom:1px solid transparent;color:var(--text);font-size:13px;font-weight:600;outline:none;padding:2px 6px;transition:border-color .15s;min-width:160px;max-width:280px}
+.hdr-name:hover,.hdr-name:focus{border-bottom-color:var(--border2)}
+.hdr-actions{margin-left:auto;display:flex;gap:6px;align-items:center}
+.hdr-file{font-size:11px;color:var(--muted);max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* ── Layout ── */
+.app{display:grid;grid-template-columns:270px 1fr;flex:1;overflow:hidden}
+.sidebar{background:var(--s1);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow-y:auto;overflow-x:hidden}
+.main{display:flex;flex-direction:column;overflow:hidden}
+
+/* ── Sidebar sections ── */
+.sb-section{padding:14px 16px;border-bottom:1px solid var(--border)}
+.sb-label{font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.sb-label::after{content:'';flex:1;height:1px;background:var(--border)}
+
+/* drop zone */
+.drop{border:1.5px dashed var(--border2);border-radius:var(--r);padding:18px 12px;text-align:center;cursor:pointer;transition:all .15s}
+.drop:hover,.drop.over{border-color:var(--accent);background:rgba(240,165,0,.04)}
+.drop-icon{font-size:24px;margin-bottom:6px}
+.drop strong{display:block;font-size:12px;margin-bottom:3px}
+.drop p{font-size:11px;color:var(--muted)}
+.drop input{display:none}
+
+/* form controls */
+.field{display:flex;flex-direction:column;gap:3px;margin-bottom:8px}
+.field label{font-size:10px;color:var(--muted);font-weight:500}
 .field input,.field select{background:var(--bg);border:1px solid var(--border);color:var(--text);padding:5px 8px;border-radius:var(--r);font-size:12px;outline:none;transition:border-color .15s;width:100%}
 .field input:focus,.field select:focus{border-color:var(--accent)}
-.row2{display:grid;grid-template-columns:1fr 1fr;gap:7px}
-.btn{display:inline-flex;align-items:center;gap:5px;padding:6px 12px;border-radius:var(--r);font-size:11px;font-weight:600;cursor:pointer;border:1px solid transparent;transition:all .15s;white-space:nowrap}
-.btn-ghost{background:transparent;color:var(--muted);border-color:var(--border)}.btn-ghost:hover{color:var(--text);border-color:var(--border2)}
-.btn-danger{background:transparent;color:var(--red);border-color:var(--red)}.btn-danger:hover{background:var(--red);color:#fff}
-.btn-sm{padding:4px 8px;font-size:10px}
-.stats-row{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:20px}
-.stat{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);padding:11px 13px}
-.stat .val{font-size:22px;font-weight:800;line-height:1;letter-spacing:-.5px}.stat .lbl{font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-top:3px}
-.stat.hi{border-color:rgba(240,165,0,.3);background:var(--accent-dim)}.stat.hi .val{color:var(--accent)}
-.stat.bad .val{color:var(--red)}
-.tabs{display:flex;gap:1px;border-bottom:1px solid var(--border);margin-bottom:18px}
-.tab{padding:7px 13px;font-size:11px;font-weight:600;cursor:pointer;border-bottom:2px solid transparent;color:var(--muted);transition:all .15s;margin-bottom:-1px}
-.tab:hover{color:var(--text)}.tab.active{color:var(--accent);border-bottom-color:var(--accent)}
-.tbadge{font-size:9px;background:var(--red);color:#fff;border-radius:8px;padding:1px 5px;margin-left:3px}
-.pane{display:none}.pane.active{display:block}
-.sec-lbl{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:600;margin-bottom:10px;display:flex;align-items:center;gap:8px}
-.sec-lbl::after{content:'';flex:1;height:1px;background:var(--border)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.field-note{font-size:10px;color:var(--muted);line-height:1.4;margin-bottom:8px}
+
+/* ── Buttons ── */
+.btn{display:inline-flex;align-items:center;gap:5px;padding:6px 12px;border-radius:var(--r);font-size:11px;font-weight:600;cursor:pointer;border:1px solid transparent;transition:all .15s;white-space:nowrap;font-family:inherit}
+.btn-accent{background:var(--accent);color:#000;border-color:var(--accent)}
+.btn-accent:hover{background:#ffc030}
+.btn-ghost{background:transparent;color:var(--muted);border-color:var(--border)}
+.btn-ghost:hover{color:var(--text);border-color:var(--border2)}
+.btn-danger{background:transparent;color:var(--red);border-color:var(--red)}
+.btn-danger:hover{background:var(--red);color:#fff}
+.btn-full{width:100%;justify-content:center}
+.btn-xs{padding:3px 8px;font-size:10px}
+
+/* ── Stats bar ── */
+.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:1px;background:var(--border);border-bottom:1px solid var(--border);flex-shrink:0}
+.stat{background:var(--s1);padding:10px 14px}
+.stat-val{font-size:22px;font-weight:700;line-height:1;font-family:var(--mono)}
+.stat-lbl{font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-top:3px}
+.stat.hi .stat-val{color:var(--accent)}
+.stat.warn .stat-val{color:var(--red)}
+
+/* ── Phase bar ── */
+.phase-bar{display:flex;gap:1px;background:var(--border);border-bottom:1px solid var(--border);flex-shrink:0;padding:0}
+.phase{flex:1;background:var(--s2);padding:8px 14px;display:flex;align-items:center;gap:10px}
+.phase-name{font-size:10px;font-weight:700;letter-spacing:.1em;color:var(--muted);min-width:18px}
+.phase-track{flex:1;height:6px;background:var(--bg);border-radius:3px;overflow:hidden}
+.phase-fill{height:100%;border-radius:3px;transition:width .3s}
+.phase-l1 .phase-fill{background:#e05555}
+.phase-l2 .phase-fill{background:#f0a500}
+.phase-l3 .phase-fill{background:#5590e8}
+.phase-kw{font-size:10px;color:var(--muted);font-family:var(--mono);min-width:50px;text-align:right}
+
+/* ── Tabs ── */
+.tabs{display:flex;background:var(--s1);border-bottom:1px solid var(--border);flex-shrink:0}
+.tab{padding:9px 16px;font-size:11px;font-weight:600;cursor:pointer;border-bottom:2px solid transparent;color:var(--muted);transition:all .15s;white-space:nowrap}
+.tab:hover{color:var(--text)}
+.tab.on{color:var(--accent);border-bottom-color:var(--accent)}
+.tab-badge{display:inline-block;background:var(--red);color:#fff;border-radius:8px;padding:0 5px;font-size:9px;margin-left:4px;line-height:14px}
+
+/* ── Tab content ── */
+.tab-body{flex:1;overflow-y:auto;padding:18px 20px}
+.tab-pane{display:none}
+.tab-pane.on{display:block}
+
+/* ── Tables ── */
 .tbl{width:100%;border-collapse:collapse;font-size:11px}
-.tbl th{text-align:left;padding:6px 9px;font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600;border-bottom:1px solid var(--border);background:var(--surface);position:sticky;top:0;z-index:1}
-.tbl td{padding:5px 9px;border-bottom:1px solid var(--border)}.tbl tr:hover td{background:var(--surface2)}.tbl tr:last-child td{border-bottom:none}
+.tbl th{text-align:left;padding:7px 10px;font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--border);background:var(--s1);position:sticky;top:0;white-space:nowrap}
+.tbl td{padding:6px 10px;border-bottom:1px solid var(--border)}
+.tbl tr:hover td{background:var(--s2)}
+.tbl tr:last-child td{border-bottom:none}
 .mono{font-family:var(--mono)}
-.badge{display:inline-flex;align-items:center;padding:2px 6px;border-radius:3px;font-size:9px;font-weight:700;letter-spacing:.05em;white-space:nowrap}
-.b-soca{background:var(--purple-dim);color:#bb88ff;border:1px solid rgba(153,102,221,.3)}
-.b-janus{background:var(--orange-dim);color:#f0aa66;border:1px solid rgba(232,136,68,.3)}
-.b-chain{background:var(--green-dim);color:#66dd99;border:1px solid rgba(78,201,122,.3)}
-.b-dmx{background:var(--blue-dim);color:#88bbff;border:1px solid rgba(85,153,232,.3)}
-.b-l1{background:rgba(232,85,85,.15);color:var(--phase1);border:1px solid rgba(232,85,85,.3)}
-.b-l2{background:rgba(85,170,238,.15);color:var(--phase2);border:1px solid rgba(85,170,238,.3)}
-.b-l3{background:rgba(238,204,68,.15);color:var(--phase3);border:1px solid rgba(238,204,68,.3)}
-.b-ok{background:var(--green-dim);color:var(--green);border:1px solid rgba(78,201,122,.3)}
-.b-info{background:var(--blue-dim);color:var(--blue);border:1px solid rgba(85,153,232,.3)}
-.b-warn{background:var(--orange-dim);color:var(--orange);border:1px solid rgba(232,136,68,.3)}
-.b-err{background:var(--red-dim);color:var(--red);border:1px solid rgba(224,85,85,.3)}
-.card{background:var(--surface2);border:1px solid var(--border);border-radius:var(--r2);padding:13px 15px;margin-bottom:8px}
-.card-head{display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap}
-.card-head h4{font-size:12px;font-weight:600;display:flex;align-items:center;gap:6px}
-.chip-row{display:flex;flex-wrap:wrap;gap:3px;margin-top:5px}
-.chip{font-size:10px;padding:2px 6px;border-radius:3px;background:var(--surface3);border:1px solid var(--border);font-family:var(--mono);color:var(--muted)}
-.chip.ch{border-color:rgba(78,201,122,.3);color:var(--green)}
-.chip.ja{border-color:rgba(232,136,68,.3);color:var(--orange)}
-.c-row{display:flex;align-items:center;gap:6px;padding:5px 8px;background:var(--surface3);border-radius:var(--r);margin-bottom:3px;border:1px solid var(--border);font-size:11px}
-.c-num{font-family:var(--mono);font-weight:700;min-width:28px;color:var(--muted)}
-.c-bar-w{flex:1;height:5px;background:var(--border);border-radius:3px;overflow:hidden}
-.c-bar{height:100%;border-radius:3px;transition:width .3s}
-.c-watts{font-family:var(--mono);min-width:72px;text-align:right;font-size:10px;color:var(--muted)}
-.phase-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:18px}
-.phase-card{background:var(--surface2);border:1px solid var(--border);border-radius:var(--r2);padding:12px 14px}
-.phase-card.l1{border-color:rgba(232,85,85,.3)}.phase-card.l2{border-color:rgba(85,170,238,.3)}.phase-card.l3{border-color:rgba(238,204,68,.3)}
-.ph-lbl{font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:5px}
-.l1 .ph-lbl{color:var(--phase1)}.l2 .ph-lbl{color:var(--phase2)}.l3 .ph-lbl{color:var(--phase3)}
-.ph-val{font-size:20px;font-weight:800;margin-bottom:2px;font-family:var(--mono)}
-.l1 .ph-val{color:var(--phase1)}.l2 .ph-val{color:var(--phase2)}.l3 .ph-val{color:var(--phase3)}
-.ph-bar{height:4px;background:var(--border);border-radius:2px;overflow:hidden;margin-top:5px}
-.ph-fill{height:100%;border-radius:2px}
-.l1 .ph-fill{background:var(--phase1)}.l2 .ph-fill{background:var(--phase2)}.l3 .ph-fill{background:var(--phase3)}
-.pick-sec{margin-bottom:22px}
-.c-item{display:flex;align-items:center;gap:10px;padding:6px 11px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);margin-bottom:3px}
-.c-len{font-family:var(--mono);font-weight:700;min-width:42px}
-.c-desc{flex:1;color:var(--muted);font-size:11px}
-.c-qty{font-family:var(--mono);font-weight:800;background:var(--surface3);border:1px solid var(--border);border-radius:var(--r);padding:2px 9px;min-width:40px;text-align:center}
-.ov-row{display:grid;grid-template-columns:1fr 70px 90px 80px;gap:6px;align-items:center;padding:5px 8px;background:var(--surface2);border-radius:var(--r);margin-bottom:4px;border:1px solid var(--border)}
-.ov-row.hdr{background:var(--surface);font-size:9px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:600}
-.ov-row input,.ov-row select{background:var(--bg);border:1px solid var(--border);color:var(--text);padding:3px 6px;border-radius:3px;font-size:11px;outline:none;width:100%}
-.ov-row input:focus,.ov-row select:focus{border-color:var(--accent)}
-.warn-item{display:flex;gap:10px;align-items:flex-start;padding:9px 12px;border-radius:var(--r);border-left:3px solid;margin-bottom:5px;background:var(--surface2)}
-.warn-item.error{border-color:var(--red)}.warn-item.warn{border-color:var(--orange)}.warn-item.info{border-color:var(--blue)}
-.wi-icon{font-size:14px;flex-shrink:0;margin-top:1px}
-.wi-text strong{display:block;font-size:12px;margin-bottom:2px}.wi-text span{font-size:11px;color:var(--muted)}
-.empty{text-align:center;padding:50px 20px;color:var(--muted)}.empty .ei{font-size:38px;margin-bottom:12px;opacity:.3}.empty p{font-size:12px}
-#rigCanvas{width:100%;background:var(--surface2);border-radius:var(--r2);border:1px solid var(--border);display:block}
-.legend{display:flex;flex-wrap:wrap;gap:12px;margin-top:8px;font-size:10px;color:var(--muted)}
-.leg-i{display:flex;align-items:center;gap:5px}
-.leg-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
-.leg-dia{width:8px;height:8px;transform:rotate(45deg);flex-shrink:0}
-#toast{position:fixed;bottom:18px;right:18px;background:var(--surface2);border:1px solid var(--border);padding:8px 15px;border-radius:var(--r2);font-size:12px;opacity:0;transition:opacity .2s;pointer-events:none;z-index:999}
+
+/* ── Badges ── */
+.bdg{display:inline-block;padding:1px 6px;border-radius:3px;font-size:9px;font-weight:700;letter-spacing:.05em}
+.bdg-soca{background:rgba(144,96,216,.2);color:#b080f0;border:1px solid rgba(144,96,216,.3)}
+.bdg-dmx {background:rgba(85,144,232,.2);color:#80b0f8;border:1px solid rgba(85,144,232,.3)}
+.bdg-janus{background:rgba(240,165,0,.15);color:var(--accent);border:1px solid rgba(240,165,0,.25)}
+.bdg-chain{background:rgba(80,200,122,.15);color:#70d890;border:1px solid rgba(80,200,122,.25)}
+.bdg-l1{background:rgba(224,85,85,.2);color:#f08080;border:1px solid rgba(224,85,85,.3)}
+.bdg-l2{background:rgba(240,165,0,.2);color:var(--accent);border:1px solid rgba(240,165,0,.3)}
+.bdg-l3{background:rgba(85,144,232,.2);color:#80b0f8;border:1px solid rgba(85,144,232,.3)}
+.tag{display:inline-block;padding:1px 5px;border-radius:2px;font-size:10px;background:var(--s3);color:var(--muted);border:1px solid var(--border)}
+
+/* ── Cards ── */
+.card{background:var(--s2);border:1px solid var(--border);border-radius:var(--r);padding:12px 14px;margin-bottom:8px}
+.card-hdr{display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap}
+.card-hdr h4{font-size:12px;font-weight:600}
+.card-meta{font-size:10px;color:var(--muted);margin-left:auto}
+.chip{font-size:10px;padding:2px 7px;border-radius:3px;background:var(--s1);border:1px solid var(--border);font-family:var(--mono);display:inline-block;margin:2px}
+
+/* ── Warnings ── */
+.warn-list{display:flex;flex-direction:column;gap:6px}
+.warn-item{display:flex;gap:10px;align-items:flex-start;padding:9px 12px;border-radius:var(--r);background:var(--s2);border-left:3px solid}
+.warn-item.e{border-color:var(--red)}
+.warn-item.w{border-color:var(--accent)}
+.warn-item.i{border-color:var(--blue)}
+.warn-item .wi{font-size:15px;flex-shrink:0;margin-top:1px}
+.warn-item strong{display:block;font-size:11px;margin-bottom:2px}
+.warn-item span{font-size:10px;color:var(--muted)}
+
+/* ── Pick list ── */
+.pick-section{margin-bottom:20px}
+.pick-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.pick-hdr h3{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.cable-row{display:flex;align-items:center;gap:10px;padding:7px 10px;background:var(--s2);border-radius:var(--r);margin-bottom:3px;border:1px solid var(--border)}
+.cable-len{font-family:var(--mono);font-weight:700;min-width:40px;font-size:12px}
+.cable-desc{flex:1;font-size:11px;color:var(--muted)}
+.cable-qty{background:var(--s1);border:1px solid var(--border);border-radius:var(--r);padding:2px 8px;font-weight:700;font-family:var(--mono);font-size:12px}
+.pick-total{font-size:10px;color:var(--muted);text-align:right;margin-top:4px}
+
+/* ── Override table ── */
+.override-row{display:grid;grid-template-columns:1fr 80px 90px 80px;gap:6px;align-items:center;padding:5px 0;border-bottom:1px solid var(--border)}
+.override-row:last-child{border-bottom:none}
+.override-row input[type=checkbox]{accent-color:var(--accent);width:14px;height:14px}
+.override-row input[type=number],.override-row select{background:var(--bg);border:1px solid var(--border);color:var(--text);padding:3px 6px;border-radius:3px;font-size:11px;outline:none;width:100%}
+.override-row input[type=number]:focus,.override-row select:focus{border-color:var(--accent)}
+
+/* ── Diagram ── */
+#rigCanvas{width:100%;background:var(--s1);display:block;border-radius:var(--r)}
+
+/* ── Empty ── */
+.empty{text-align:center;padding:50px 20px;color:var(--muted)}
+.empty-icon{font-size:40px;margin-bottom:12px;opacity:.4}
+.empty p{font-size:12px}
+
+/* ── Overview grid ── */
+.ov-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:18px}
+.ov-card{background:var(--s2);border:1px solid var(--border);border-radius:var(--r);padding:14px}
+
+/* ── Toast ── */
+#toast{position:fixed;bottom:20px;right:20px;background:var(--s2);border:1px solid var(--border);padding:8px 16px;border-radius:var(--r);font-size:12px;opacity:0;transition:opacity .2s;pointer-events:none;z-index:999}
 #toast.show{opacity:1}
-.ov-grid{display:grid;grid-template-columns:1fr 1fr;gap:13px;margin-bottom:18px}
-.ov-card{background:var(--surface2);border:1px solid var(--border);border-radius:var(--r2);padding:13px 15px}
-.kv{display:flex;justify-content:space-between;align-items:center;padding:4px 0;border-bottom:1px solid var(--border);font-size:11px}
-.kv:last-child{border-bottom:none}.kv-v{font-family:var(--mono);font-weight:600}
 </style>
 </head>
 <body>
 
-<div class="header">
-  <div class="logo">SE</div>
-  <div class="logo-text"><strong>Cable Runner</strong> · Stage Effects</div>
-  <input class="proj-name" id="projectName" value="Untitled Project" spellcheck="false">
+<!-- Header -->
+<header class="hdr">
+  <div class="hdr-logo">Stage Effects <span>/ Cable Runner</span></div>
+  <input class="hdr-name" id="projName" value="Untitled Project" spellcheck="false">
+  <span class="hdr-file" id="hdrFile"></span>
   <div class="hdr-actions">
-    <button class="btn btn-ghost btn-sm" onclick="saveProject()">💾 Save</button>
-    <button class="btn btn-ghost btn-sm" onclick="loadProject()">📂 Load</button>
-    <button class="btn btn-ghost btn-sm" onclick="exportCSV()">📊 CSV</button>
-    <button class="btn btn-ghost btn-sm" onclick="exportPDF()">📄 PDF</button>
-    <button class="btn btn-danger btn-sm" onclick="clearAll()">✕</button>
+    <button class="btn btn-ghost" onclick="saveProject()">💾 Save</button>
+    <button class="btn btn-ghost" onclick="loadProject()">📂 Load</button>
+    <button class="btn btn-ghost" onclick="exportCSV()">📊 Excel</button>
+    <button class="btn btn-ghost" onclick="exportPDF()">📄 PDF</button>
   </div>
-</div>
+</header>
 
 <div class="app">
-  <aside class="sidebar">
-    <div class="sb-sec">
-      <div class="sb-title">MVR File</div>
-      <div class="drop-zone" id="dropZone" onclick="document.getElementById('mvrInput').click()">
-        <div class="drop-icon">📦</div>
-        <strong id="dropTitle">Drop .mvr file here</strong>
-        <p id="dropSub">or click to browse</p>
-        <input type="file" id="mvrInput" accept=".mvr" onchange="handleFile(this.files[0])">
-      </div>
-    </div>
-    <div class="sb-sec">
-      <div class="sb-title">Power Supply</div>
-      <div class="field"><label>Voltage</label>
-        <select id="voltage" onchange="recalc()">
-          <option value="230" selected>230V (SA / EU)</option>
-          <option value="120">120V (US)</option>
-        </select>
-      </div>
-      <div class="row2">
-        <div class="field"><label>Circuit (A)</label><input type="number" id="circuitAmps" value="15" min="1" max="63" onchange="recalc()"></div>
-        <div class="field"><label>Load % max</label><input type="number" id="loadPct" value="80" min="50" max="100" onchange="recalc()"></div>
-      </div>
-      <div class="row2">
-        <div class="field"><label>Phases</label>
-          <select id="phases" onchange="recalc()">
-            <option value="3" selected>3-Phase</option>
-            <option value="1">Single</option>
-          </select>
-        </div>
-        <div class="field"><label>Main breaker (A)</label><input type="number" id="mainBreaker" value="63" min="16" max="400" onchange="recalc()"></div>
-      </div>
-      <div class="row2">
-        <div class="field"><label>Soca ways</label><input type="number" id="socaWays" value="6" min="1" max="12" onchange="recalc()"></div>
-        <div class="field"><label>Janus ways</label><input type="number" id="janusWays" value="3" min="2" max="6" onchange="recalc()"></div>
-      </div>
-    </div>
-    <div class="sb-sec">
-      <div class="sb-title">Cable Settings</div>
-      <p style="font-size:10px;color:var(--muted);margin-bottom:9px;line-height:1.5">Soca = distro→fanout (long run). Janus tails = fanout→fixture (short).</p>
-      <div class="row2">
-        <div class="field"><label>Soca slack (m)</label><input type="number" id="socaSlack" value="3" min="0" max="20" onchange="recalc()"></div>
-        <div class="field"><label>Janus max (m)</label><input type="number" id="janusMax" value="5" min="1" max="20" onchange="recalc()"></div>
-      </div>
-      <div class="row2">
-        <div class="field"><label>DMX slack (m)</label><input type="number" id="dmxSlack" value="2" min="0" max="15" onchange="recalc()"></div>
-        <div class="field"><label>Drape factor %</label><input type="number" id="drapePct" value="15" min="0" max="40" onchange="recalc()"></div>
-      </div>
-    </div>
-    <div class="sb-sec">
-      <div class="sb-title">Distro Position (m)</div>
-      <div class="row2">
-        <div class="field"><label>X</label><input type="number" id="distroX" value="0" onchange="recalc()"></div>
-        <div class="field"><label>Y</label><input type="number" id="distroY" value="0" onchange="recalc()"></div>
-      </div>
-    </div>
-  </aside>
+<!-- Sidebar -->
+<aside class="sidebar">
 
-  <main class="main">
-    <div class="stats-row">
-      <div class="stat"><div class="val" id="sF">—</div><div class="lbl">Fixtures</div></div>
-      <div class="stat hi"><div class="val" id="sS">—</div><div class="lbl">Soca Runs</div></div>
-      <div class="stat"><div class="val" id="sC">—</div><div class="lbl">Circuits</div></div>
-      <div class="stat"><div class="val" id="sP">—</div><div class="lbl">Total kW</div></div>
-      <div class="stat" id="sWarnCard"><div class="val" id="sW">—</div><div class="lbl">Warnings</div></div>
+  <div class="sb-section">
+    <div class="sb-label">MVR File</div>
+    <div class="drop" id="dropZone" onclick="document.getElementById('mvrInput').click()">
+      <div class="drop-icon">📦</div>
+      <strong id="dropTitle">Drop MVR file here</strong>
+      <p id="dropSub">click to browse · .mvr</p>
+      <input type="file" id="mvrInput" accept=".mvr" onchange="handleFile(this.files[0])">
     </div>
-    <div class="tabs">
-      <div class="tab active" onclick="showTab('overview')">Overview</div>
-      <div class="tab" onclick="showTab('soca')">Soca &amp; Circuits</div>
-      <div class="tab" onclick="showTab('phase')">3-Phase</div>
-      <div class="tab" onclick="showTab('picklist')">Pick List</div>
-      <div class="tab" onclick="showTab('fixtures')">Fixtures</div>
-      <div class="tab" onclick="showTab('overrides')">Overrides</div>
-      <div class="tab" onclick="showTab('diagram')">Diagram</div>
-      <div class="tab" onclick="showTab('warnings')">Warnings<span class="tbadge" id="wBadge" style="display:none">0</span></div>
+  </div>
+
+  <div class="sb-section">
+    <div class="sb-label">Supply</div>
+    <div class="field">
+      <label>Voltage</label>
+      <select id="voltage" onchange="recalc()">
+        <option value="230" selected>230V (SA / EU)</option>
+        <option value="120">120V (US)</option>
+      </select>
     </div>
-    <div class="pane active" id="pane-overview"><div class="empty"><div class="ei">📦</div><p>Load an MVR file to begin</p></div></div>
-    <div class="pane" id="pane-soca"><div class="empty"><div class="ei">🔌</div><p>Load an MVR file</p></div></div>
-    <div class="pane" id="pane-phase"><div class="empty"><div class="ei">⚡</div><p>Load an MVR file</p></div></div>
-    <div class="pane" id="pane-picklist"><div class="empty"><div class="ei">📋</div><p>Load an MVR file</p></div></div>
-    <div class="pane" id="pane-fixtures">
+    <div class="grid2">
+      <div class="field"><label>Circuit (A)</label><input type="number" id="circuitA" value="15" min="1" max="63" onchange="recalc()"></div>
+      <div class="field"><label>Load factor %</label><input type="number" id="loadPct" value="80" min="50" max="100" onchange="recalc()"></div>
+    </div>
+    <div class="grid2">
+      <div class="field"><label>Soca ways</label><input type="number" id="socaWays" value="6" min="1" max="12" onchange="recalc()"></div>
+      <div class="field"><label>Phases</label><input type="number" id="phases" value="3" min="1" max="3" onchange="recalc()"></div>
+    </div>
+    <div class="field"><label>Phase breaker (A)</label><input type="number" id="phaseBreaker" value="63" min="16" max="400" onchange="recalc()"></div>
+  </div>
+
+  <div class="sb-section">
+    <div class="sb-label">Cable Settings</div>
+    <p class="field-note">Soca = long run (distro→fanout). Janus tail = short run (fanout→fixture). Chain = fixture-to-fixture.</p>
+    <div class="grid2">
+      <div class="field"><label>Soca slack (m)</label><input type="number" id="socaSlack" value="3" min="0" max="20" onchange="recalc()"></div>
+      <div class="field"><label>Janus max (m)</label><input type="number" id="janusMax" value="5" min="1" max="15" onchange="recalc()"></div>
+    </div>
+    <div class="grid2">
+      <div class="field"><label>DMX slack (m)</label><input type="number" id="dmxSlack" value="2" min="0" max="20" onchange="recalc()"></div>
+      <div class="field"><label>Drape % factor</label><input type="number" id="drape" value="15" min="0" max="40" onchange="recalc()"></div>
+    </div>
+  </div>
+
+  <div class="sb-section">
+    <div class="sb-label">Distro Position (m)</div>
+    <div class="grid2">
+      <div class="field"><label>X</label><input type="number" id="distroX" value="0" step="0.5" onchange="recalc()"></div>
+      <div class="field"><label>Y</label><input type="number" id="distroY" value="0" step="0.5" onchange="recalc()"></div>
+    </div>
+  </div>
+
+  <div class="sb-section" style="margin-top:auto">
+    <button class="btn btn-danger btn-full" onclick="clearAll()">Clear All</button>
+  </div>
+
+</aside>
+
+<!-- Main -->
+<main class="main">
+
+  <!-- Stats -->
+  <div class="stats" id="statsBar">
+    <div class="stat"><div class="stat-val" id="s-fix">—</div><div class="stat-lbl">Fixtures</div></div>
+    <div class="stat hi"><div class="stat-val" id="s-soca">—</div><div class="stat-lbl">Soca Runs</div></div>
+    <div class="stat"><div class="stat-val" id="s-circ">—</div><div class="stat-lbl">Circuits</div></div>
+    <div class="stat"><div class="stat-val" id="s-kw">—</div><div class="stat-lbl">Total kW</div></div>
+    <div class="stat"><div class="stat-val" id="s-warn">—</div><div class="stat-lbl">Warnings</div></div>
+  </div>
+
+  <!-- Phase balance -->
+  <div class="phase-bar" id="phaseBar">
+    <div class="phase phase-l1"><span class="phase-name">L1</span><div class="phase-track"><div class="phase-fill" id="p1fill" style="width:0%"></div></div><span class="phase-kw" id="p1kw">0 kW</span></div>
+    <div class="phase phase-l2"><span class="phase-name">L2</span><div class="phase-track"><div class="phase-fill" id="p2fill" style="width:0%"></div></div><span class="phase-kw" id="p2kw">0 kW</span></div>
+    <div class="phase phase-l3"><span class="phase-name">L3</span><div class="phase-track"><div class="phase-fill" id="p3fill" style="width:0%"></div></div><span class="phase-kw" id="p3kw">0 kW</span></div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <div class="tab on" onclick="showTab('overview')">Overview</div>
+    <div class="tab" onclick="showTab('circuits')">Circuits</div>
+    <div class="tab" onclick="showTab('soca')">Soca Zones</div>
+    <div class="tab" onclick="showTab('picklist')">Pick List</div>
+    <div class="tab" onclick="showTab('fixtures')">Fixtures</div>
+    <div class="tab" onclick="showTab('overrides')">Overrides</div>
+    <div class="tab" onclick="showTab('diagram')">Diagram</div>
+    <div class="tab" onclick="showTab('warnings')">Warnings <span class="tab-badge" id="warnBadge" style="display:none">0</span></div>
+  </div>
+
+  <div class="tab-body">
+
+    <!-- Overview -->
+    <div class="tab-pane on" id="tab-overview">
+      <div id="ovContent"><div class="empty"><div class="empty-icon">📦</div><p>Load an MVR file to begin</p></div></div>
+    </div>
+
+    <!-- Circuits -->
+    <div class="tab-pane" id="tab-circuits">
+      <div id="circContent"><div class="empty"><div class="empty-icon">🔌</div><p>Load an MVR file to see circuit breakdown</p></div></div>
+    </div>
+
+    <!-- Soca Zones -->
+    <div class="tab-pane" id="tab-soca">
+      <div id="socaContent"><div class="empty"><div class="empty-icon">🔌</div><p>Load an MVR file to see Soca zones</p></div></div>
+    </div>
+
+    <!-- Pick List -->
+    <div class="tab-pane" id="tab-picklist">
+      <div id="pickContent"><div class="empty"><div class="empty-icon">📋</div><p>Load an MVR file to generate pick list</p></div></div>
+    </div>
+
+    <!-- Fixtures -->
+    <div class="tab-pane" id="tab-fixtures">
       <div style="overflow-x:auto">
-        <table class="tbl"><thead><tr><th>FID</th><th>Fixture</th><th>Layer</th><th>DMX</th><th>X</th><th>Y</th><th>Z</th><th>Power</th><th>Connector</th><th>Through</th><th>Circuit</th><th>Soca</th><th>Phase</th></tr></thead>
-        <tbody id="fTbody"><tr><td colspan="13" style="text-align:center;padding:40px;color:var(--muted)">No fixtures</td></tr></tbody></table>
+        <table class="tbl">
+          <thead><tr>
+            <th>FID</th><th>Fixture</th><th>Layer</th><th>DMX</th>
+            <th>X</th><th>Y</th><th>Z</th>
+            <th>Power</th><th>Connector</th><th>Circuit</th><th>Phase</th>
+          </tr></thead>
+          <tbody id="fixBody"><tr><td colspan="11" style="text-align:center;color:var(--muted);padding:40px">No fixtures loaded</td></tr></tbody>
+        </table>
       </div>
     </div>
-    <div class="pane" id="pane-overrides"><div class="empty"><div class="ei">⚙️</div><p>Load an MVR file</p></div></div>
-    <div class="pane" id="pane-diagram">
-      <canvas id="rigCanvas" height="580"></canvas>
-      <div class="legend" id="rigLegend"></div>
+
+    <!-- Overrides -->
+    <div class="tab-pane" id="tab-overrides">
+      <div id="overrideContent"><div class="empty"><div class="empty-icon">⚙️</div><p>Load an MVR file to configure fixture overrides</p></div></div>
     </div>
-    <div class="pane" id="pane-warnings"><div class="empty"><div class="ei">✅</div><p>Load an MVR file</p></div></div>
-  </main>
+
+    <!-- Diagram -->
+    <div class="tab-pane" id="tab-diagram">
+      <canvas id="rigCanvas" height="580"></canvas>
+    </div>
+
+    <!-- Warnings -->
+    <div class="tab-pane" id="tab-warnings">
+      <div class="warn-list" id="warnList"><div class="empty"><div class="empty-icon">✅</div><p>Load an MVR file first</p></div></div>
+    </div>
+
+  </div>
+</main>
 </div>
+
 <div id="toast"></div>
 
 <script>
-// ── GDTF Knowledge Base (from real GDTF parsing across 5 MVR files) ──
-const DB = {
-  'CLUSTER B2':   {p:400,  t:true,  ci:'PowerconTRUE1'},
-  'ERA 150':      {p:340,  t:true,  ci:'PowerconTRUE1'},
-  'MAC 101':      {p:235,  t:true,  ci:'PowerconTRUE1'},
-  'MAC AURA':     {p:285,  t:true,  ci:'PowerconTRUE1'},
-  'MAC ONE':      {p:160,  t:true,  ci:'PowerconTRUE1'},
-  'MAC VIPER':    {p:945,  t:true,  ci:'PowerconTRUE1'},
-  'TETRA2':       {p:600,  t:true,  ci:'PowerconTRUE1'},
-  'ROBIN TETRA':  {p:600,  t:true,  ci:'PowerconTRUE1'},
-  'VDO ATOMIC':   {p:400,  t:true,  ci:'PowerconTRUE1'},
-  'MAC QUANTUM':  {p:880,  t:false, ci:'PowerconTRUE1'},
-  'MAC ULTRA':    {p:1380, t:false, ci:'PowerconTRUE1'},
-  'EURUS':        {p:1000, t:false, ci:'PowerconTRUE1'},
-  'MEGAPOINTE':   {p:670,  t:false, ci:'PowerconTRUE1'},
-  'ROBIN FORTE':  {p:1250, t:false, ci:'PowerconTRUE1'},
-  'IFORTE':       {p:1250, t:false, ci:'PowerconTRUE1'},
-  'ROBIN SPIIDER':{p:660,  t:false, ci:'PowerconTRUE1'},
-  'ROBIN POINTE': {p:470,  t:false, ci:'PowerconTRUE1'},
-  'BMFL':         {p:1700, t:false, ci:'PowerconTRUE1'},
-  'RUSH PAR':     {p:180,  t:false, ci:'PowerconTRUE1'},
-  'PATT 2013':    {p:750,  t:false, ci:'LooseEnd'},
-  'Q-8':          {p:350,  t:false, ci:'PowerconTRUE1'},
-  'SGM Q':        {p:350,  t:false, ci:'PowerconTRUE1'},
-  'PIXELSTORM':   {p:280,  t:false, ci:'PowerconTRUE1'},
-  'PIXEL LINE':   {p:100,  t:false, ci:'PowerconTRUE1'},
-  'PORTMAN':      {p:180,  t:false, ci:'PowerconTRUE1'},
-  'P1 RETRO':     {p:180,  t:false, ci:'PowerconTRUE1'},
-  'LEDFORCE':     {p:320,  t:false, ci:'PowerconTRUE1'},
-  'SOURCE 4':     {p:750,  t:false, ci:'LooseEnd'},
-  'FRESNEL':      {p:1000, t:false, ci:'LooseEnd'},
-  'ROBIN 100':    {p:100,  t:false, ci:'PowerconTRUE1'},
-  'ROBIN SPIIDER':{p:660,  t:false, ci:'PowerconTRUE1'},
+// ══════════════════════════════════════════════════════════════
+//  POWER DATABASE (manufacturer spec, watts)
+// ══════════════════════════════════════════════════════════════
+const PWR = {
+  'sgm q': 350, 'q-8': 350, 'q8': 350,
+  'tetra2': 250, 'tetra 2': 250,
+  'spiider': 760,
+  'bmfl blade': 1700, 'bmfl washbeam': 1700, 'bmfl': 1700,
+  'forte': 1400, 'iforte': 1400,
+  'megapointe': 880,
+  'pointe': 660,
+  'robin 100': 100,
+  'patt 2013': 750,
+  'ledforce 18': 550, 'ledforce': 550,
+  'mac quantum wash': 630, 'mac quantum': 630,
+  'mac aura xip': 550, 'mac aura': 550,
+  'mac viper xip': 1000, 'mac viper': 1000,
+  'mac ultra performance': 1700, 'mac ultra': 1700,
+  'era 150': 200,
+  'mac one': 120,
+  'mac 101': 65,
+  'vdo atomic bold': 900, 'atomic bold': 900,
+  'rush par 2': 80,
+  'eurus': 900,
+  'pixel line ip': 200, 'pixel line': 200, 'acme pixel': 200,
+  'cluster b2': 400, 'roxx cluster': 400,
+  'p1 retro': 180, 'portman p1': 180,
+  'pixelstorm cob': 280, 'pixelstorm': 280,
+  'source 4': 750,
+  'spotlight 2k': 2000, '2k fresnel': 2000,
+  'spotlight vd': 150,
+  'ldr 1200': 1800,
+  'follow spot': 2000,
 };
 
-// ── State ──
-let ST = { fixtures:[], circuits:[], socaRuns:[], phaseRuns:{L1:[],L2:[],L3:[]}, phaseLoad:{L1:0,L2:0,L3:0}, warnings:[], overrides:{}, gdtfData:{}, fileName:'' };
+function lookupPower(name) {
+  const n = name.toLowerCase();
+  for (const [k, w] of Object.entries(PWR)) {
+    if (n.includes(k)) return w;
+  }
+  return null;
+}
 
-// ── Settings ──
-const gv = id => parseFloat(document.getElementById(id).value)||0;
-const gi = id => parseInt(document.getElementById(id).value)||0;
-function S(){ return { V:gv('voltage'), A:gv('circuitAmps'), loadPct:gv('loadPct')/100, phases:gi('phases'), mainA:gv('mainBreaker'), socaWays:gi('socaWays'), janusWays:gi('janusWays'), socaSlack:gv('socaSlack'), janusMax:gv('janusMax'), dmxSlack:gv('dmxSlack'), drape:1+gv('drapePct')/100, dX:gv('distroX'), dY:gv('distroY'), get maxW(){ return this.V*this.A*this.loadPct; } }; }
+// ══════════════════════════════════════════════════════════════
+//  KNOWN THROUGH-POWER FIXTURES (GDTF fallback knowledge base)
+// ══════════════════════════════════════════════════════════════
+const KNOWN_THROUGH = [
+  'cluster b2', 'roxx cluster',
+  'sgm q', 'q-8',
+  'tetra2', 'tetra 2',
+  'pixel line',
+  'atomic bold', 'vdo atomic',
+  'ledforce',
+  'mac 101',
+  'rush par',
+  'mac one',
+];
 
-// ── File Handling ──
-async function handleFile(file){
-  if(!file||!file.name.endsWith('.mvr')){toast('Please select a .mvr file',1);return;}
-  document.getElementById('dropTitle').textContent='⏳ Parsing…';
-  try{
-    const buf=await file.arrayBuffer();
-    if(typeof JSZip==='undefined') await loadScript('https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js');
-    const zip=await JSZip.loadAsync(buf);
-    let xmlStr=null;
-    for(const n of Object.keys(zip.files)){if(n.toLowerCase().includes('generalscenedescription')){xmlStr=await zip.files[n].async('string');break;}}
-    if(!xmlStr)throw new Error('GeneralSceneDescription.xml not found');
+function lookupThrough(name) {
+  const n = name.toLowerCase();
+  return KNOWN_THROUGH.some(k => n.includes(k));
+}
 
-    const gdtfData={};
-    for(const n of Object.keys(zip.files)){
-      if(!n.endsWith('.gdtf'))continue;
-      const key=n.replace('.gdtf','').split('@').pop().trim();
-      try{
-        const gb=await zip.files[n].async('arraybuffer');
-        const gz=await JSZip.loadAsync(gb);
-        for(const xf of Object.keys(gz.files)){
-          if(!xf.endsWith('.xml'))continue;
-          const xs=await gz.files[xf].async('string');
-          gdtfData[key]=parseGDTF(xs);
+// ══════════════════════════════════════════════════════════════
+//  STATE
+// ══════════════════════════════════════════════════════════════
+let ST = {
+  fixtures: [],
+  circuits: [],
+  socaZones: [],
+  phases: [],
+  warnings: [],
+  overrides: {}, // fixtureName -> {power, hasThrough}
+  fileName: '',
+};
+
+// ══════════════════════════════════════════════════════════════
+//  SETTINGS
+// ══════════════════════════════════════════════════════════════
+const g = id => parseFloat(document.getElementById(id).value) || 0;
+function cfg() {
+  return {
+    V: g('voltage'), A: g('circuitA'),
+    load: g('loadPct') / 100,
+    ways: Math.max(1, parseInt(g('socaWays'))),
+    phases: Math.max(1, parseInt(g('phases'))),
+    phaseBreaker: g('phaseBreaker'),
+    socaSlack: g('socaSlack'),
+    janusMax: g('janusMax'),
+    dmxSlack: g('dmxSlack'),
+    drape: 1 + g('drape') / 100,
+    dX: g('distroX'), dY: g('distroY'),
+  };
+}
+
+// ══════════════════════════════════════════════════════════════
+//  MVR FILE HANDLING
+// ══════════════════════════════════════════════════════════════
+async function handleFile(file) {
+  if (!file || !file.name.endsWith('.mvr')) { toast('Please select a .mvr file', 1); return; }
+  setDrop('⏳ Parsing…', file.name);
+  try {
+    const buf = await file.arrayBuffer();
+    if (typeof JSZip === 'undefined') await loadScript('https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js');
+    const zip = await JSZip.loadAsync(buf);
+
+    // Find scene XML
+    let xmlStr = null;
+    for (const n of Object.keys(zip.files)) {
+      if (n.toLowerCase().includes('generalscenedescription')) {
+        xmlStr = await zip.files[n].async('string'); break;
+      }
+    }
+    if (!xmlStr) throw new Error('GeneralSceneDescription.xml not found');
+
+    // Parse GDTF files for connector data
+    const gdtfData = {};
+    for (const n of Object.keys(zip.files)) {
+      if (!n.endsWith('.gdtf')) continue;
+      const fixKey = n.replace('.gdtf','').split('@').pop().trim().toLowerCase();
+      try {
+        const gdtfBuf = await zip.files[n].async('arraybuffer');
+        const gdtfZip = await JSZip.loadAsync(gdtfBuf);
+        for (const gf of Object.keys(gdtfZip.files)) {
+          if (!gf.endsWith('.xml')) continue;
+          const gxml = await gdtfZip.files[gf].async('string');
+          // Parse connectors
+          const connMatches = [...gxml.matchAll(/<Connector\s([^/>]+)/g)];
+          const connectors = connMatches.map(m => {
+            const nm = m[1].match(/Name="([^"]+)"/);
+            const ty = m[1].match(/Type="([^"]+)"/);
+            const ge = m[1].match(/Gender="([^"]+)"/);
+            return { name: nm?.[1]||'', type: ty?.[1]||'', gender: ge?.[1]||'0' };
+          });
+          const hasThrough = connectors.some(c =>
+            c.gender === '1' && /powercon|schuko|cee|powerlock/i.test(c.type)
+          );
+          const pMatch = gxml.match(/PowerConsumption="([0-9.]+)"/);
+          gdtfData[fixKey] = { hasThrough, connectors, gdtfPower: pMatch ? parseFloat(pMatch[1]) : null };
+          break;
         }
-      }catch(e){}
+      } catch(e) {}
     }
-    ST.gdtfData=gdtfData;
-    const doc=new DOMParser().parseFromString(xmlStr,'application/xml');
-    ST.fixtures=parseMVR(doc);
-    ST.fileName=file.name;
-    document.getElementById('projectName').value=file.name.replace('.mvr','');
-    document.getElementById('dropTitle').textContent='✅ '+file.name;
-    document.getElementById('dropSub').textContent=ST.fixtures.length+' fixtures';
+
+    // Parse scene description
+    const doc = new DOMParser().parseFromString(xmlStr, 'application/xml');
+    ST.fixtures = parseMVR(doc, gdtfData);
+    ST.fileName = file.name;
+    ST.overrides = buildOverrides(ST.fixtures);
+    document.getElementById('projName').value = file.name.replace('.mvr','');
+    document.getElementById('hdrFile').textContent = file.name;
+    setDrop('✅ ' + file.name, ST.fixtures.length + ' fixtures');
     recalc();
-    toast('Loaded '+ST.fixtures.length+' fixtures');
-  }catch(e){
+    toast('Loaded ' + ST.fixtures.length + ' fixtures');
+  } catch(e) {
     console.error(e);
-    document.getElementById('dropTitle').textContent='Drop .mvr file here';
-    document.getElementById('dropSub').textContent='or click to browse';
-    toast('Error: '+e.message,1);
+    setDrop('Drop MVR file here', 'click to browse · .mvr');
+    toast('Error: ' + e.message, 1);
   }
 }
 
-function loadScript(src){return new Promise((res,rej)=>{const s=document.createElement('script');s.src=src;s.onload=res;s.onerror=rej;document.head.appendChild(s);});}
-
-// ── GDTF Parser ──
-function parseGDTF(xml){
-  let ci=null,co=null,hasT=false,power=null,weight=null;
-  const wires=[...xml.matchAll(/<WiringObject([^>]+)>/g)];
-  for(const[,a]of wires){
-    const sig=(a.match(/SignalType="([^"]+)"/))||[];
-    if(sig[1]!=='Power')continue;
-    const comp=(a.match(/ComponentType="([^"]+)"/))||[];
-    const ct=(a.match(/ConnectorType="([^"]+)"/))||[];
-    const el=parseFloat((a.match(/ElectricalPayLoad="([0-9.]+)"/))||[,0])[1];
-    const nm=((a.match(/Name="([^"]+)"/))||[,''])[1].toLowerCase();
-    if(comp[1]==='Consumer'){ci=ct[1]||null;if(el>10)power=Math.max(power||0,el);}
-    if(comp[1]==='PowerSource'||comp[1]==='Output'||nm.includes('thru')||nm.includes('out')){co=ct[1]||null;hasT=true;}
-  }
-  if(!ci){
-    const cc=[...xml.matchAll(/<Connector\s([^/>]+)/g)];
-    for(const[,a]of cc){
-      const nm=((a.match(/Name="([^"]+)"/))||[,''])[1].toLowerCase();
-      const tp=(a.match(/Type="([^"]+)"/))||[];
-      if(!tp[1])continue;
-      if(nm.includes('power')&&nm.includes('in'))ci=tp[1];
-      if(nm.includes('power')&&nm.includes('out')){co=tp[1];hasT=true;}
-    }
-  }
-  const wm=xml.match(/<Weight\s+Value="([0-9.]+)"/);
-  if(wm)weight=parseFloat(wm[1]);
-  return{power,weight,ci,co,hasT};
-}
-
-// ── MVR Parser ──
-function parseMVR(doc){
-  const fixtures=[];const seen=new Set();const layerMap={};
-  doc.querySelectorAll('Layer').forEach(l=>{
-    const ln=l.getAttribute('name')||'Unknown';
-    l.querySelectorAll('Fixture').forEach(f=>layerMap[f.getAttribute('uuid')]=ln);
+function loadScript(src) {
+  return new Promise((res,rej) => {
+    const s = document.createElement('script');
+    s.src = src; s.onload = res; s.onerror = rej;
+    document.head.appendChild(s);
   });
-  doc.querySelectorAll('Fixture').forEach(f=>{
-    const uuid=f.getAttribute('uuid');
-    if(seen.has(uuid))return;seen.add(uuid);
-    const name=f.getAttribute('name')||'Unknown';
-    const layer=layerMap[uuid]||'Unknown';
+}
+
+function parseMVR(doc, gdtfData) {
+  const fixtures = [];
+  const seen = new Set();
+  const layerMap = {};
+  doc.querySelectorAll('Layer').forEach(l => {
+    const ln = l.getAttribute('name') || '';
+    l.querySelectorAll('Fixture').forEach(f => { layerMap[f.getAttribute('uuid')] = ln; });
+  });
+  doc.querySelectorAll('Fixture').forEach(f => {
+    const uuid = f.getAttribute('uuid');
+    if (seen.has(uuid)) return; seen.add(uuid);
+    const name = f.getAttribute('name') || 'Unknown';
+    const layer = layerMap[uuid] || 'Unknown';
+    // XYZ
     let x=0,y=0,z=0;
-    const mat=f.querySelector('Matrix');
-    if(mat?.textContent){const p=mat.textContent.match(/\{([^}]+)\}/g)||[];if(p.length>=4){const c=p[3].replace(/[{}]/g,'').split(',').map(Number);x=(c[0]||0)/1000;y=(c[1]||0)/1000;z=(c[2]||0)/1000;}}
-    const addr=f.querySelector('Address');
-    const dmx=addr?.textContent?.trim()?parseInt(addr.textContent.trim())||null:null;
-    const fid=f.querySelector('FixtureID')?.textContent?.trim()||'';
-    const mode=f.querySelector('GDTFMode')?.textContent?.trim()||'';
-    const fi=resolveFixture(name);
-    fixtures.push({uuid,name,layer,x,y,z,dmx,fid,mode,...fi});
+    const mat = f.querySelector('Matrix');
+    if (mat?.textContent) {
+      const parts = mat.textContent.match(/\{([^}]+)\}/g)||[];
+      if (parts.length>=4) {
+        const c = parts[3].replace(/[{}]/g,'').split(',').map(Number);
+        x=+(c[0]/1000).toFixed(3); y=+(c[1]/1000).toFixed(3); z=+(c[2]/1000).toFixed(3);
+      }
+    }
+    // DMX
+    let dmx=null;
+    const addr = f.querySelector('Address');
+    if (addr?.textContent?.trim()) dmx = parseInt(addr.textContent.trim())||null;
+    // FID, mode
+    const fid = f.querySelector('FixtureID')?.textContent?.trim()||'';
+    const mode = f.querySelector('GDTFMode')?.textContent?.trim()||'';
+    // Power + connector — GDTF first, then knowledge base
+    const nk = name.toLowerCase();
+    const gdtf = Object.entries(gdtfData).find(([k]) => nk.includes(k))?.[1];
+    const dbPower = lookupPower(name);
+    const power = dbPower || 300; // 300W fallback
+    const powerUnknown = !dbPower;
+    const hasThrough = gdtf?.hasThrough ?? lookupThrough(name);
+    fixtures.push({ uuid,name,layer,x,y,z,dmx,fid,mode,power,powerUnknown,hasThrough });
   });
   return fixtures;
 }
 
-// ── Fixture Resolution: GDTF parsed > DB > default ──
-function resolveFixture(name){
-  const nu=name.toUpperCase();
-  // User overrides first
-  for(const[k,ov]of Object.entries(ST.overrides)){
-    if(nu.includes(k.toUpperCase())){
-      return{power:ov.power||300,hasT:ov.hasT!==null?ov.hasT:false,ci:ov.ci||'—',source:'override'};
-    }
-  }
-  // GDTF parsed from this MVR
-  for(const[k,d]of Object.entries(ST.gdtfData)){
-    if(nu.includes(k.toUpperCase())||k.toUpperCase().split(' ').slice(-2).every(w=>nu.includes(w))){
-      if(d.power||d.hasT||d.ci){return{power:d.power||300,hasT:d.hasT,ci:d.ci||'—',source:'gdtf'};}
-    }
-  }
-  // Static DB
-  for(const[k,d]of Object.entries(DB)){
-    if(nu.includes(k)){return{power:d.p,hasT:d.t,ci:d.ci||'—',source:'db'};}
-  }
-  return{power:300,hasT:false,ci:'—',source:'default'};
+function buildOverrides(fixtures) {
+  const types = {};
+  fixtures.forEach(f => {
+    if (!types[f.name]) types[f.name] = { power: f.power, hasThrough: f.hasThrough, powerUnknown: f.powerUnknown };
+  });
+  return types;
 }
 
-// ── Main Calculation ──
-function recalc(){
-  if(!ST.fixtures.length)return;
-  const s=S();
-  // Re-resolve overrides
-  ST.fixtures.forEach(f=>{const fi=resolveFixture(f.name);f.power=fi.power;f.hasT=fi.hasT;f.ci=fi.ci;f.source=fi.source;});
-  const warns=[];
+// ══════════════════════════════════════════════════════════════
+//  CORE CALCULATION ENGINE
+// ══════════════════════════════════════════════════════════════
+function recalc() {
+  if (!ST.fixtures.length) return;
+  const s = cfg();
+  const warnings = [];
 
-  // STEP 1: Circuit packing — same type, spatial order, fill to maxW
-  const byType={};
-  ST.fixtures.forEach(f=>{if(!byType[f.name])byType[f.name]=[];byType[f.name].push(f);});
-  const circuits=[];let cIdx=1;
-  Object.entries(byType).forEach(([,fxs])=>{
-    fxs.sort((a,b)=>a.x!==b.x?a.x-b.x:a.y-b.y);
-    let cur=null;
-    fxs.forEach(f=>{
-      if(cur&&cur.pw+f.power<=s.maxW){cur.fixtures.push(f);cur.pw+=f.power;f._cid=cur.id;}
-      else{cur={id:cIdx++,fixtures:[f],pw:f.power,type:f.hasT?'chain':'janus'};circuits.push(cur);f._cid=cur.id;}
-    });
+  // Apply overrides to fixtures
+  const fixtures = ST.fixtures.map(f => {
+    const ov = ST.overrides[f.name];
+    return { ...f, power: ov?.power ?? f.power, hasThrough: ov?.hasThrough ?? f.hasThrough };
   });
-  circuits.forEach(c=>{if(c.pw>s.V*s.A)warns.push({level:'error',icon:'🔴',title:`Circuit C${c.id} overloaded: ${Math.round(c.pw)}W (max ${Math.round(s.V*s.A)}W)`,detail:c.fixtures.map(f=>f.name).join(', ')});});
 
-  // STEP 2: Soca grouping — spatially cluster circuits
-  circuits.forEach(c=>{c.cx=c.fixtures.reduce((t,f)=>t+f.x,0)/c.fixtures.length;c.cy=c.fixtures.reduce((t,f)=>t+f.y,0)/c.fixtures.length;});
-  const unsoca=[...circuits];const socaRuns=[];let sIdx=1;
-  while(unsoca.length>0){
-    const anchor=unsoca.reduce((b,c)=>d2(c.cx,c.cy,s.dX,s.dY)>d2(b.cx,b.cy,s.dX,s.dY)?c:b,unsoca[0]);
-    const nearby=unsoca.filter(c=>d2(c.cx,c.cy,anchor.cx,anchor.cy)<=64).slice(0,s.socaWays);
-    const fx=nearby.reduce((t,c)=>t+c.cx,0)/nearby.length;
-    const fy=nearby.reduce((t,c)=>t+c.cy,0)/nearby.length;
-    const socaLen=roundCbl((Math.sqrt(d2(fx,fy,s.dX,s.dY))+s.socaSlack)*s.drape);
-    let dmxLen=0;
-    nearby.forEach(c=>c.fixtures.forEach(f=>{
-      const dl=(Math.sqrt(d2(f.x,f.y,s.dX,s.dY))+s.dmxSlack)*s.drape;
-      if(dl>dmxLen)dmxLen=dl;
-      f._jlen=Math.min(roundCbl((Math.sqrt(d2(f.x,f.y,fx,fy))+1)*s.drape),30);
-    }));
-    const tp=nearby.reduce((t,c)=>t+c.pw,0);
-    socaRuns.push({id:sIdx++,circuits:nearby,fx,fy,socaLen,dmxLen:roundCbl(dmxLen),tp,phase:null});
-    const ids=new Set(nearby.map(c=>c.id));
-    for(let i=unsoca.length-1;i>=0;i--)if(ids.has(unsoca[i].id))unsoca.splice(i,1);
+  // ── WARNINGS: unknown power ──
+  const unkPwr = fixtures.filter(f => f.powerUnknown && !(ST.overrides[f.name]?.power));
+  if (unkPwr.length) {
+    const types = [...new Set(unkPwr.map(f=>f.name))];
+    warnings.push({ lvl:'w', icon:'⚡', title:`${unkPwr.length} fixture(s) using 300W fallback power`, detail:'Set correct values in Overrides tab: ' + types.join(', ') });
   }
 
-  // STEP 3: 3-phase balancing
-  const pLoad={L1:0,L2:0,L3:0};const pRuns={L1:[],L2:[],L3:[]};
-  const pNames=s.phases===3?['L1','L2','L3']:['L1'];
-  socaRuns.sort((a,b)=>b.tp-a.tp);
-  socaRuns.forEach(r=>{
-    const lightest=pNames.reduce((b,p)=>pLoad[p]<pLoad[b]?p:b,pNames[0]);
-    r.phase=lightest;pLoad[lightest]+=r.tp;pRuns[lightest].push(r);
-  });
-  if(s.phases===3){
-    const loads=Object.values(pLoad).filter(v=>v>0);
-    if(loads.length===3){const avg=loads.reduce((a,b)=>a+b,0)/3;const mx=Math.max(...loads.map(l=>Math.abs(l-avg)/avg*100));if(mx>15)warns.push({level:'warn',icon:'⚡',title:`Phase imbalance: ${mx.toFixed(0)}% deviation`,detail:`L1:${(pLoad.L1/1000).toFixed(1)}kW  L2:${(pLoad.L2/1000).toFixed(1)}kW  L3:${(pLoad.L3/1000).toFixed(1)}kW`});}
-  }
-  const maxPA=Math.max(...Object.values(pLoad))/s.V;
-  if(maxPA>s.mainA*s.loadPct)warns.push({level:'error',icon:'🔴',title:`Heaviest phase: ${maxPA.toFixed(0)}A exceeds ${s.mainA}A breaker at ${(s.loadPct*100).toFixed(0)}% load`,detail:''});
-  const noDmx=ST.fixtures.filter(f=>!f.dmx);
-  if(noDmx.length)warns.push({level:'warn',icon:'🎚️',title:`${noDmx.length} fixture(s) have no DMX address`,detail:[...new Set(noDmx.map(f=>f.name))].join(', ')});
-  const defP=ST.fixtures.filter(f=>f.source==='default');
-  if(defP.length)warns.push({level:'info',icon:'💡',title:`${defP.length} fixture(s) using default 300W estimate`,detail:[...new Set(defP.map(f=>f.name))].slice(0,5).join(', ')});
+  // ── WARNINGS: no DMX ──
+  const noDmx = fixtures.filter(f=>!f.dmx);
+  if (noDmx.length) warnings.push({ lvl:'w', icon:'🎚️', title:`${noDmx.length} fixture(s) have no DMX address`, detail:[...new Set(noDmx.map(f=>f.name))].join(', ') });
 
-  ST.circuits=circuits;ST.socaRuns=socaRuns;ST.phaseRuns=pRuns;ST.phaseLoad=pLoad;ST.warnings=warns;
-  const totP=ST.fixtures.reduce((t,f)=>t+f.power,0);
-  renderStats(circuits,socaRuns,totP,warns);
-  renderOverview(circuits,socaRuns,pLoad,totP,s);
-  renderSoca(socaRuns,s);
-  renderPhase(pRuns,pLoad,s);
-  renderPickList(socaRuns,s);
-  renderFT();
+  // ── WARNINGS: no position ──
+  const noPos = fixtures.filter(f=>f.x===0&&f.y===0&&f.z===0);
+  if (noPos.length) warnings.push({ lvl:'i', icon:'📍', title:`${noPos.length} fixture(s) at origin (no XYZ data)`, detail:'Cable lengths may be inaccurate for these fixtures' });
+
+  const maxCircuitW = s.V * s.A * s.load;
+
+  // ── STEP 1: Build circuits ──
+  // Group by: same fixture type, spatially close, fill to maxCircuitW
+  // For through-power fixtures: chain in spatial order
+  // For others: Janus head (star from fanout), each tail ≤ janusMax
+
+  const circuits = [];
+  const unassigned = [...fixtures];
+  let circId = 1;
+
+  while (unassigned.length) {
+    // Pick heaviest unassigned fixture as circuit anchor
+    unassigned.sort((a,b) => b.power - a.power);
+    const anchor = unassigned.shift();
+    const circuit = { id: circId++, anchor, fixtures: [anchor], topology: anchor.hasThrough ? 'chain' : 'janus', totalPower: anchor.power };
+
+    if (anchor.hasThrough) {
+      // Chain mode: find same-type fixtures spatially nearby, add while under budget
+      let last = anchor;
+      for (let i = unassigned.length-1; i >= 0; i--) {
+        const f = unassigned[i];
+        if (f.name !== anchor.name) continue;
+        if (circuit.totalPower + f.power > maxCircuitW) continue;
+        const d = dist(f.x, f.y, last.x, last.y);
+        if (d > s.janusMax * 3) continue; // don't chain across the whole rig
+        circuit.fixtures.push(f);
+        circuit.totalPower += f.power;
+        last = f;
+        unassigned.splice(i, 1);
+      }
+    } else {
+      // Janus mode: find same-type fixtures within janusMax of anchor, fill budget
+      for (let i = unassigned.length-1; i >= 0; i--) {
+        const f = unassigned[i];
+        if (f.name !== anchor.name) continue;
+        if (circuit.totalPower + f.power > maxCircuitW) continue;
+        const d = dist(f.x, f.y, anchor.x, anchor.y);
+        if (d > s.janusMax) continue;
+        circuit.fixtures.push(f);
+        circuit.totalPower += f.power;
+        unassigned.splice(i, 1);
+      }
+    }
+
+    // Circuit position = centroid of its fixtures
+    circuit.cx = circuit.fixtures.reduce((t,f)=>t+f.x,0)/circuit.fixtures.length;
+    circuit.cy = circuit.fixtures.reduce((t,f)=>t+f.y,0)/circuit.fixtures.length;
+    circuits.push(circuit);
+  }
+
+  // ── WARNINGS: circuit overload ──
+  circuits.forEach(c => {
+    if (c.totalPower > maxCircuitW) {
+      warnings.push({ lvl:'e', icon:'🔴', title:`Circuit ${c.id} overloaded: ${Math.round(c.totalPower)}W > ${Math.round(maxCircuitW)}W limit`, detail:`Fixtures: ${c.fixtures.map(f=>f.name).join(', ')}` });
+    }
+  });
+
+  // ── STEP 2: Pack circuits into Soca cables ──
+  // Group spatially close circuits (up to s.ways per Soca)
+  const socaZones = [];
+  const unpackedCircuits = [...circuits];
+  let socaId = 1;
+
+  while (unpackedCircuits.length) {
+    // Anchor = circuit farthest from distro (work outward first)
+    const anchor = unpackedCircuits.reduce((best, c) => {
+      return dist(c.cx,c.cy,s.dX,s.dY) > dist(best.cx,best.cy,s.dX,s.dY) ? c : best;
+    }, unpackedCircuits[0]);
+
+    // Gather circuits within grouping radius of anchor
+    const groupRadius = s.janusMax * 4;
+    const inGroup = unpackedCircuits.filter(c => dist(c.cx,c.cy,anchor.cx,anchor.cy) <= groupRadius);
+    const assigned = inGroup.slice(0, s.ways);
+
+    const fanoutX = assigned.reduce((t,c)=>t+c.cx,0)/assigned.length;
+    const fanoutY = assigned.reduce((t,c)=>t+c.cy,0)/assigned.length;
+    const socaRunRaw = dist(fanoutX, fanoutY, s.dX, s.dY);
+    const socaLen = Math.ceil((socaRunRaw + s.socaSlack) * s.drape);
+    const dmxLen = Math.ceil((Math.max(...assigned.map(c=>dist(c.cx,c.cy,s.dX,s.dY))) + s.dmxSlack) * s.drape);
+    const zonePower = assigned.reduce((t,c)=>t+c.totalPower,0);
+
+    socaZones.push({ id: socaId++, circuits: assigned, fanoutX, fanoutY, socaLen: Math.max(socaLen,5), dmxLen: Math.max(dmxLen,5), zonePower, phase: null });
+
+    const assignedIds = new Set(assigned.map(c=>c.id));
+    for (let i=unpackedCircuits.length-1;i>=0;i--) {
+      if (assignedIds.has(unpackedCircuits[i].id)) unpackedCircuits.splice(i,1);
+    }
+  }
+
+  // ── STEP 3: Phase balancing ──
+  // Greedy: assign each Soca to the phase with lowest current load
+  const phaseLoads = Array(s.phases).fill(0);
+  const phaseBreaker = s.V * s.phaseBreaker;
+  socaZones.sort((a,b)=>b.zonePower-a.zonePower); // biggest zones first
+  socaZones.forEach(z => {
+    const pi = phaseLoads.indexOf(Math.min(...phaseLoads));
+    z.phase = pi + 1;
+    phaseLoads[pi] += z.zonePower;
+  });
+
+  // ── WARNINGS: phase overload ──
+  const phaseNames = ['L1','L2','L3'];
+  phaseLoads.forEach((load, i) => {
+    if (i >= s.phases) return;
+    const maxPhase = s.V * s.phaseBreaker * s.load;
+    if (load > maxPhase) {
+      warnings.push({ lvl:'e', icon:'⚡', title:`Phase ${phaseNames[i]} overloaded: ${(load/1000).toFixed(1)}kW > ${(maxPhase/1000).toFixed(1)}kW limit`, detail:`Reduce load or increase breaker size` });
+    }
+  });
+
+  // ── Build fixture→circuit map ──
+  const fixCircMap = {};
+  circuits.forEach(c => c.fixtures.forEach(f => fixCircMap[f.uuid] = c));
+
+  ST.circuits = circuits;
+  ST.socaZones = socaZones;
+  ST.warnings = warnings;
+  ST.phaseLoads = phaseLoads;
+
+  // ── Render everything ──
+  updateStats(fixtures, circuits, socaZones, warnings, s);
+  updatePhaseBar(phaseLoads, s);
+  renderOverview(fixtures, circuits, socaZones, s);
+  renderCircuits(circuits, socaZones, s);
+  renderSocaZones(socaZones, s);
+  renderPickList(socaZones, circuits, s);
+  renderFixtureTable(fixtures, circuits, fixCircMap, socaZones);
   renderOverrides();
-  renderDiagram(socaRuns,ST.fixtures,s);
-  renderWarnings(warns);
+  renderDiagram(fixtures, circuits, socaZones, s);
+  renderWarnings(warnings);
 }
 
-function d2(x1,y1,x2,y2){return(x1-x2)**2+(y1-y2)**2;}
-function roundCbl(len){const std=[3,5,10,15,20,25,30,50];for(const s of std)if(len<=s)return s;return Math.ceil(len/10)*10;}
+function dist(x1,y1,x2,y2){return Math.sqrt((x1-x2)**2+(y1-y2)**2)}
 
-// ── Render Stats ──
-function renderStats(circuits,socaRuns,totP,warns){
-  document.getElementById('sF').textContent=ST.fixtures.length;
-  document.getElementById('sS').textContent=socaRuns.length;
-  document.getElementById('sC').textContent=circuits.length;
-  document.getElementById('sP').textContent=(totP/1000).toFixed(1)+'kW';
-  document.getElementById('sW').textContent=warns.length;
-  document.getElementById('sWarnCard').className='stat'+(warns.some(w=>w.level==='error')?' bad':'');
-  const wb=document.getElementById('wBadge');
-  if(warns.length>0){wb.textContent=warns.length;wb.style.display='';}else wb.style.display='none';
+// ══════════════════════════════════════════════════════════════
+//  STATS + PHASE BAR
+// ══════════════════════════════════════════════════════════════
+function updateStats(fixtures, circuits, socaZones, warnings, s) {
+  document.getElementById('s-fix').textContent = fixtures.length;
+  document.getElementById('s-soca').textContent = socaZones.length;
+  document.getElementById('s-circ').textContent = circuits.length;
+  const kw = fixtures.reduce((t,f)=>t+f.power,0)/1000;
+  document.getElementById('s-kw').textContent = kw.toFixed(1);
+  document.getElementById('s-warn').textContent = warnings.length;
+  const warnEl = document.getElementById('s-warn').parentElement;
+  warnEl.className = 'stat' + (warnings.filter(w=>w.lvl==='e').length ? ' warn' : '');
 }
 
-// ── Render Overview ──
-function renderOverview(circuits,socaRuns,pLoad,totP,s){
-  const ch=circuits.filter(c=>c.type==='chain').length,ja=circuits.filter(c=>c.type==='janus').length;
-  const totSL=socaRuns.reduce((t,r)=>t+r.socaLen,0);
-  const totJL=ST.fixtures.reduce((t,f)=>t+(f._jlen||5),0);
-  const byType={};
-  ST.fixtures.forEach(f=>{if(!byType[f.name])byType[f.name]={n:0,p:0,t:f.hasT,src:f.source};byType[f.name].n++;byType[f.name].p+=f.power;});
-  const rows=Object.entries(byType).sort((a,b)=>b[1].n-a[1].n).map(([nm,d])=>`<tr>
-    <td>${nm}</td><td class="mono">${d.n}</td><td class="mono">${d.p/d.n|0}W</td><td class="mono">${d.p}W</td>
-    <td>${d.t?'<span class="badge b-chain">CHAIN</span>':'<span class="badge b-janus">JANUS</span>'}</td>
-    <td><span class="badge ${d.src==='gdtf'?'b-ok':d.src==='db'?'b-info':'b-warn'}">${d.src.toUpperCase()}</span></td>
-  </tr>`).join('');
-  document.getElementById('pane-overview').innerHTML=`
+function updatePhaseBar(phaseLoads, s) {
+  const nPhases = s.phases;
+  const maxPhaseW = s.V * s.phaseBreaker;
+  ['p1','p2','p3'].forEach((id,i) => {
+    const load = phaseLoads[i] || 0;
+    const pct = Math.min(100, (load/maxPhaseW)*100);
+    document.getElementById(id+'fill').style.width = pct + '%';
+    document.getElementById(id+'kw').textContent = (load/1000).toFixed(1) + ' kW';
+    document.getElementById(id+'fill').style.background = pct > 90 ? 'var(--red)' : pct > 75 ? 'var(--accent)' : null;
+  });
+}
+
+// ══════════════════════════════════════════════════════════════
+//  OVERVIEW
+// ══════════════════════════════════════════════════════════════
+function renderOverview(fixtures, circuits, socaZones, s) {
+  const totalPow = fixtures.reduce((t,f)=>t+f.power,0);
+  const byType = {};
+  fixtures.forEach(f=>{byType[f.name]=byType[f.name]||{count:0,power:0,through:f.hasThrough};byType[f.name].count++;byType[f.name].power+=f.power;});
+  const rows = Object.entries(byType).sort((a,b)=>b[1].count-a[1].count).map(([n,d])=>`
+    <tr>
+      <td>${n}</td>
+      <td class="mono">${d.count}</td>
+      <td class="mono">${Math.round(d.power/d.count)}W</td>
+      <td class="mono">${d.power}W</td>
+      <td><span class="bdg ${d.through?'bdg-chain':'bdg-janus'}">${d.through?'CHAIN':'JANUS'}</span></td>
+      <td class="mono">${(Math.ceil(d.power/s.V/s.A/s.load))}</td>
+    </tr>`).join('');
+
+  document.getElementById('ovContent').innerHTML = `
     <div class="ov-grid">
-      <div class="ov-card"><div class="sec-lbl">Cable Summary</div>
-        <div class="kv"><span>Soca runs</span><span class="kv-v">${socaRuns.length} <span style="color:var(--muted);font-size:10px">(${totSL}m)</span></span></div>
-        <div class="kv"><span>Circuits</span><span class="kv-v">${circuits.length}</span></div>
-        <div class="kv"><span><span class="badge b-chain">CHAIN</span></span><span class="kv-v">${ch} circuits</span></div>
-        <div class="kv"><span><span class="badge b-janus">JANUS</span></span><span class="kv-v">${ja} circuits</span></div>
-        <div class="kv"><span>Janus tails</span><span class="kv-v">${ST.fixtures.length} <span style="color:var(--muted);font-size:10px">(~${totJL}m)</span></span></div>
+      <div class="ov-card">
+        <div class="sb-label" style="margin-bottom:10px">Cable Summary</div>
+        <div style="display:flex;flex-direction:column;gap:7px;font-size:12px">
+          <div style="display:flex;justify-content:space-between"><span><span class="bdg bdg-soca">SOCA</span> ${socaZones.length} runs</span><span class="mono" style="color:var(--muted)">${socaZones.reduce((t,z)=>t+z.socaLen,0)}m total</span></div>
+          <div style="display:flex;justify-content:space-between"><span><span class="bdg bdg-janus">JANUS/CHAIN</span> ${circuits.length} circuits</span><span class="mono" style="color:var(--muted)">${circuits.length} tails</span></div>
+          <div style="display:flex;justify-content:space-between"><span><span class="bdg bdg-dmx">DMX</span> ${socaZones.length} zone runs</span><span class="mono" style="color:var(--muted)">${socaZones.reduce((t,z)=>t+z.dmxLen,0)}m total</span></div>
+        </div>
       </div>
-      <div class="ov-card"><div class="sec-lbl">Power Summary</div>
-        <div class="kv"><span>Total</span><span class="kv-v" style="color:var(--accent)">${(totP/1000).toFixed(2)}kW</span></div>
-        <div class="kv"><span>L1</span><span class="kv-v" style="color:var(--phase1)">${(pLoad.L1/1000).toFixed(2)}kW</span></div>
-        <div class="kv"><span>L2</span><span class="kv-v" style="color:var(--phase2)">${(pLoad.L2/1000).toFixed(2)}kW</span></div>
-        <div class="kv"><span>L3</span><span class="kv-v" style="color:var(--phase3)">${(pLoad.L3/1000).toFixed(2)}kW</span></div>
-        <div class="kv"><span>Max per circuit</span><span class="kv-v">${Math.round(s.maxW)}W</span></div>
+      <div class="ov-card">
+        <div class="sb-label" style="margin-bottom:10px">Power Summary</div>
+        <div style="display:flex;flex-direction:column;gap:7px;font-size:12px">
+          <div style="display:flex;justify-content:space-between"><span>Total draw</span><span class="mono" style="color:var(--accent)">${(totalPow/1000).toFixed(2)} kW</span></div>
+          <div style="display:flex;justify-content:space-between"><span>Circuits (${Math.round(s.V*s.A*s.load)}W max each)</span><span class="mono">${circuits.length}</span></div>
+          <div style="display:flex;justify-content:space-between"><span>Soca cables (${s.ways}-way)</span><span class="mono">${socaZones.length}</span></div>
+          <div style="display:flex;justify-content:space-between"><span>Avg fixtures/circuit</span><span class="mono">${(fixtures.length/circuits.length).toFixed(1)}</span></div>
+        </div>
       </div>
     </div>
-    <div class="sec-lbl">Fixture Types</div>
-    <div style="overflow-x:auto"><table class="tbl"><thead><tr><th>Fixture</th><th>Qty</th><th>Each</th><th>Total</th><th>Power Type</th><th>Data Source</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+    <div class="sb-label" style="margin-bottom:10px">Fixture Types</div>
+    <div style="overflow-x:auto">
+      <table class="tbl">
+        <thead><tr><th>Fixture</th><th>Qty</th><th>Each</th><th>Total</th><th>Topology</th><th>Circuits needed</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>`;
 }
 
-// ── Render Soca ──
-function renderSoca(socaRuns,s){
-  const phC={L1:'b-l1',L2:'b-l2',L3:'b-l3'};
-  const cards=socaRuns.map(r=>{
-    const cCards=r.circuits.map(c=>{
-      const pct=Math.min(100,c.pw/s.maxW*100);
-      const bc=pct>90?'var(--red)':pct>70?'var(--orange)':'var(--green)';
-      const chips=c.fixtures.map(f=>`<div class="chip ${f.hasT?'ch':'ja'}">${f.fid||'?'} ${f.name.split(' ').slice(-2).join(' ')} <span style="opacity:.55">${f._jlen||5}m</span></div>`).join('');
-      return `<div class="c-row"><span class="c-num">C${c.id}</span><span class="badge ${c.type==='chain'?'b-chain':'b-janus'}">${c.type.toUpperCase()}</span><div class="c-bar-w"><div class="c-bar" style="width:${pct}%;background:${bc}"></div></div><span class="c-watts">${Math.round(c.pw)}/${Math.round(s.maxW)}W</span></div><div class="chip-row" style="margin-bottom:7px">${chips}</div>`;
+// ══════════════════════════════════════════════════════════════
+//  CIRCUITS TAB
+// ══════════════════════════════════════════════════════════════
+function renderCircuits(circuits, socaZones, s) {
+  const zoneMap = {};
+  socaZones.forEach(z => z.circuits.forEach(c => zoneMap[c.id] = z));
+
+  const cards = circuits.map(c => {
+    const zone = zoneMap[c.id];
+    const phaseBdg = zone ? `<span class="bdg bdg-l${zone.phase}">L${zone.phase}</span>` : '';
+    const chips = c.fixtures.map(f=>`<span class="chip">${f.fid||'?'} ${f.name.split(' ').slice(-2).join(' ')}</span>`).join('');
+    const pct = Math.round(c.totalPower/(s.V*s.A*s.load)*100);
+    const loadColor = pct>95?'var(--red)':pct>80?'var(--accent)':'var(--green)';
+    return `<div class="card">
+      <div class="card-hdr">
+        <span class="bdg ${c.topology==='chain'?'bdg-chain':'bdg-janus'}">${c.topology.toUpperCase()}</span>
+        <h4>Circuit ${c.id}</h4>
+        ${zone?`<span class="bdg bdg-soca">Soca ${zone.id}</span>`:''}
+        ${phaseBdg}
+        <span class="card-meta" style="color:${loadColor}">${Math.round(c.totalPower)}W · ${pct}% load · ${c.fixtures.length} fixture${c.fixtures.length>1?'s':''}</span>
+      </div>
+      <div>${chips}</div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('circContent').innerHTML = `
+    <p style="font-size:11px;color:var(--muted);margin-bottom:14px">
+      ${circuits.length} circuits · max ${Math.round(s.V*s.A*s.load)}W each · same fixture type grouped together
+    </p>${cards}`;
+}
+
+// ══════════════════════════════════════════════════════════════
+//  SOCA ZONES TAB
+// ══════════════════════════════════════════════════════════════
+function renderSocaZones(socaZones, s) {
+  const phaseColors = ['bdg-l1','bdg-l2','bdg-l3'];
+  const cards = socaZones.map(z => {
+    const spare = s.ways - z.circuits.length;
+    const circCards = z.circuits.map(c => {
+      const chips = c.fixtures.map(f=>`<span class="chip">${f.fid||'?'} ${f.name.split(' ').slice(-2).join(' ')} <span style="color:var(--muted)">${f.power}W</span></span>`).join('');
+      return `<div style="background:var(--s1);border:1px solid var(--border);border-radius:3px;padding:7px 9px;margin-bottom:4px">
+        <div style="display:flex;gap:6px;align-items:center;margin-bottom:5px;font-size:10px">
+          <span class="bdg ${c.topology==='chain'?'bdg-chain':'bdg-janus'}">${c.topology}</span>
+          <span style="font-weight:600">Cct ${c.id}</span>
+          <span style="color:var(--muted)">${Math.round(c.totalPower)}W</span>
+        </div>
+        <div>${chips}</div>
+      </div>`;
     }).join('');
-    return `<div class="card"><div class="card-head"><h4><span class="badge b-soca">SOCA ${r.id}</span>${r.socaLen}m</h4><span class="badge ${phC[r.phase]||'b-info'}">${r.phase}</span><span style="margin-left:auto;font-size:10px;color:var(--muted)">${r.circuits.length}/${s.socaWays} · ${Math.round(r.tp)}W · DMX ${r.dmxLen}m</span></div>${cCards}</div>`;
+    return `<div class="card">
+      <div class="card-hdr">
+        <span class="bdg bdg-soca">SOCA ${z.id}</span>
+        <span class="bdg ${phaseColors[(z.phase-1)%3]}">L${z.phase}</span>
+        <h4>${z.circuits.length}/${s.ways} circuits · ${z.socaLen}m run</h4>
+        <span class="card-meta">${Math.round(z.zonePower)}W · fanout @ (${z.fanoutX.toFixed(1)}, ${z.fanoutY.toFixed(1)})</span>
+      </div>
+      <div style="font-size:10px;color:var(--muted);margin-bottom:8px">DMX run: ${z.dmxLen}m${spare>0?` · <span style="color:var(--accent)">${spare} spare circuit${spare>1?'s':''}</span>`:''}</div>
+      ${circCards}
+    </div>`;
   }).join('');
-  document.getElementById('pane-soca').innerHTML=`<p style="font-size:11px;color:var(--muted);margin-bottom:14px">${socaRuns.length} runs · ${ST.circuits.length} circuits · Max ${Math.round(s.maxW)}W / circuit (${s.A}A @ ${s.V}V @ ${(s.loadPct*100).toFixed(0)}%)</p>${cards}`;
+
+  document.getElementById('socaContent').innerHTML = `
+    <p style="font-size:11px;color:var(--muted);margin-bottom:14px">
+      ${socaZones.length} Socapex runs · ${s.ways}-way fanout each · Janus tails max ${s.janusMax}m · chain fixtures link through PowerCon
+    </p>${cards}`;
 }
 
-// ── Render Phase ──
-function renderPhase(pRuns,pLoad,s){
-  const total=Object.values(pLoad).reduce((a,b)=>a+b,0);
-  const maxL=Math.max(...Object.values(pLoad));
-  const avg=total/3;
-  const imb=maxL>0?Math.max(...Object.values(pLoad).map(l=>Math.abs(l-avg)/avg*100)):0;
-  const cols=['L1','L2','L3'].map(p=>{
-    const ld=pLoad[p]||0,pct=maxL>0?ld/maxL*100:0,runs=pRuns[p]||[];
-    return `<div class="phase-card ${p.toLowerCase()}"><div class="ph-lbl">${p}</div><div class="ph-val">${(ld/1000).toFixed(2)}<span style="font-size:11px;font-weight:400">kW</span></div><div style="font-size:11px;color:var(--muted)">${(ld/s.V).toFixed(1)}A · ${runs.length} run${runs.length!==1?'s':''}</div><div class="ph-bar"><div class="ph-fill" style="width:${pct}%"></div></div><div style="font-size:10px;color:var(--muted);margin-top:4px">${runs.map(r=>'S'+r.id).join(' · ')||'—'}</div></div>`;
-  }).join('');
-  document.getElementById('pane-phase').innerHTML=`<div class="phase-grid">${cols}</div>
-    <div class="card"><div class="card-head"><h4>Balance Summary</h4></div>
-    <div style="display:flex;gap:24px;font-size:12px;flex-wrap:wrap">
-      <div><div style="font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:2px">Total Load</div><div class="mono" style="font-size:20px;font-weight:800;color:var(--accent)">${(total/1000).toFixed(2)}kW</div></div>
-      <div><div style="font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:2px">Imbalance</div><div class="mono" style="font-size:20px;font-weight:800;color:${imb>15?'var(--red)':imb>8?'var(--orange)':'var(--green)'}">${imb.toFixed(1)}%</div></div>
-      <div><div style="font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:2px">Avg / Phase</div><div class="mono" style="font-size:20px;font-weight:800">${(avg/1000).toFixed(2)}kW</div></div>
-      <div><div style="font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:2px">Heaviest Phase</div><div class="mono" style="font-size:20px;font-weight:800">${(maxL/s.V).toFixed(0)}A</div></div>
-    </div></div>`;
-}
+// ══════════════════════════════════════════════════════════════
+//  PICK LIST
+// ══════════════════════════════════════════════════════════════
+function renderPickList(socaZones, circuits, s) {
+  // Aggregate by cable type and rounded length
+  const socaLens = {}, dmxLens = {}, janusLens = {};
 
-// ── Render Pick List ──
-function renderPickList(socaRuns,s){
-  const sL={},jL={},dL={};
-  socaRuns.forEach(r=>{sL[r.socaLen]=(sL[r.socaLen]||0)+1;dL[r.dmxLen]=(dL[r.dmxLen]||0)+1;});
-  ST.fixtures.forEach(f=>{const jl=f._jlen||5;jL[jl]=(jL[jl]||0)+1;});
-  function sec(title,badge,data){
-    const total=Object.values(data).reduce((a,b)=>a+b,0);
-    const rows=Object.entries(data).sort((a,b)=>+a[0]-+b[0]).map(([len,qty])=>`<div class="c-item"><span class="badge ${badge}">${badge==='b-soca'?'SOCA':badge==='b-janus'?'JANUS':'DMX'}</span><span class="c-len">${len}m</span><span class="c-desc">standard length</span><span class="c-qty">× ${qty}</span></div>`).join('');
-    return `<div class="pick-sec"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><span class="sec-lbl" style="flex:1">${title}</span><span style="font-size:10px;color:var(--muted)">${total} total</span></div>${rows}<div style="font-size:10px;color:var(--muted);text-align:right;margin-top:4px">Total: ${total}</div></div>`;
+  socaZones.forEach(z => {
+    const sl = roundCable(z.socaLen); socaLens[sl] = (socaLens[sl]||0)+1;
+    const dl = roundCable(z.dmxLen); dmxLens[dl] = (dmxLens[dl]||0)+1;
+  });
+
+  circuits.forEach(c => {
+    if (c.topology === 'chain') {
+      // Chain: one cable between each fixture + first cable from fanout
+      const sorted = [...c.fixtures].sort((a,b)=>dist(a.x,a.y,c.anchor.x,c.anchor.y)-dist(b.x,b.y,c.anchor.x,c.anchor.y));
+      sorted.forEach((f,i) => {
+        const prev = i===0 ? {x:c.cx,y:c.cy} : sorted[i-1];
+        const l = Math.ceil((dist(f.x,f.y,prev.x,prev.y)+1)*s.drape);
+        const rl = roundCable(Math.max(l,3));
+        janusLens[rl] = (janusLens[rl]||0)+1;
+      });
+    } else {
+      // Janus: one tail per fixture from fanout
+      c.fixtures.forEach(f => {
+        const l = Math.ceil((dist(f.x,f.y,c.cx,c.cy)+1)*s.drape);
+        const rl = roundCable(Math.max(l,3));
+        janusLens[rl] = (janusLens[rl]||0)+1;
+      });
+    }
+  });
+
+  function section(title, badge, data) {
+    const total = Object.values(data).reduce((a,b)=>a+b,0);
+    const rows = Object.entries(data).sort((a,b)=>+a[0]-+b[0]).map(([len,qty])=>`
+      <div class="cable-row">
+        <span class="bdg ${badge}">${badge.replace('bdg-','').toUpperCase()}</span>
+        <span class="cable-len">${len}m</span>
+        <span class="cable-desc">standard length</span>
+        <span class="cable-qty">× ${qty}</span>
+      </div>`).join('');
+    return `<div class="pick-section">
+      <div class="pick-hdr"><h3>${title}</h3><span style="font-size:10px;color:var(--muted)">${total} cables</span></div>
+      ${rows}
+      <div class="pick-total">${total} cables total</div>
+    </div>`;
   }
-  document.getElementById('pane-picklist').innerHTML=`<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px"><p style="font-size:11px;color:var(--muted)">Lengths rounded to nearest standard. Drape ×${s.drape.toFixed(2)} applied.</p><button class="btn btn-ghost btn-sm" onclick="exportCSV()">Export CSV</button></div>${sec('Socapex Runs','b-soca',sL)}${sec('Janus / IEC Tails','b-janus',jL)}${sec('DMX Runs','b-dmx',dL)}`;
+
+  document.getElementById('pickContent').innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+      <p style="font-size:11px;color:var(--muted)">Rounded up to nearest standard length. Drape factor ×${s.drape.toFixed(2)} applied.</p>
+      <button class="btn btn-ghost" onclick="exportCSV()">Export to Excel</button>
+    </div>
+    ${section('Socapex Runs','bdg-soca',socaLens)}
+    ${section('Janus Tails / Chain Links','bdg-janus',janusLens)}
+    ${section('DMX Runs','bdg-dmx',dmxLens)}`;
 }
 
-// ── Render Fixture Table ──
-function renderFT(){
-  const pm={},sm={},cm={};
-  ST.socaRuns.forEach(r=>r.circuits.forEach(c=>c.fixtures.forEach(f=>{pm[f.uuid]=r.phase;sm[f.uuid]=r.id;cm[f.uuid]=c.id;})));
-  const phC={L1:'b-l1',L2:'b-l2',L3:'b-l3'};
-  const rows=ST.fixtures.map(f=>`<tr>
-    <td class="mono">${f.fid||'—'}</td><td>${f.name}</td>
-    <td><span style="font-size:10px;color:var(--muted)">${f.layer.replace('SFX -- ','').replace('-- ','')}</span></td>
-    <td class="mono">${f.dmx||'<span style="color:var(--red)">—</span>'}</td>
-    <td class="mono">${f.x.toFixed(1)}</td><td class="mono">${f.y.toFixed(1)}</td>
-    <td class="mono" style="color:${f.z>1?'var(--accent)':'inherit'}">${f.z.toFixed(1)}</td>
-    <td class="mono">${f.power}W</td>
-    <td style="font-size:10px;color:var(--muted)">${f.ci||'—'}</td>
-    <td>${f.hasT?'<span class="badge b-chain">CHAIN</span>':'<span class="badge b-janus">JANUS</span>'}</td>
-    <td class="mono">${cm[f.uuid]?'C'+cm[f.uuid]:'—'}</td>
-    <td>${sm[f.uuid]?`<span class="badge b-soca">S${sm[f.uuid]}</span>`:'—'}</td>
-    <td>${pm[f.uuid]?`<span class="badge ${phC[pm[f.uuid]]||''}">${pm[f.uuid]}</span>`:'—'}</td>
-  </tr>`).join('');
-  document.getElementById('fTbody').innerHTML=rows||'<tr><td colspan="13" style="text-align:center;padding:30px;color:var(--muted)">No fixtures</td></tr>';
+function roundCable(len) {
+  for (const s of [3,5,10,15,20,25,30,50]) if (len<=s) return s;
+  return Math.ceil(len/10)*10;
 }
 
-// ── Render Overrides ──
-function renderOverrides(){
-  if(!ST.fixtures.length)return;
-  const types=[...new Set(ST.fixtures.map(f=>f.name))].sort();
-  const rows=types.map(name=>{
-    const f=ST.fixtures.find(x=>x.name===name);
-    const ov=ST.overrides[name]||{};
-    const src=f?.source||'default';
-    const sb=src==='gdtf'?'<span class="badge b-ok">GDTF</span>':src==='db'?'<span class="badge b-info">DB</span>':'<span class="badge b-warn">DEFAULT</span>';
-    const safe=name.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
-    return `<div class="ov-row"><span style="font-size:11px">${name} ${sb}</span><input type="number" placeholder="${f?.power||300}" value="${ov.power||''}" onchange="setOv('${safe}','power',this.value)" min="1" max="5000"><select onchange="setOv('${safe}','hasT',this.value)"><option value="" ${!ov.hasOwnProperty('hasT')?'selected':''}>Auto</option><option value="true" ${ov.hasT===true?'selected':''}>Chain ✅</option><option value="false" ${ov.hasT===false?'selected':''}>Janus</option></select><span style="font-size:10px;color:var(--muted)">${f?.ci||'—'}</span></div>`;
+// ══════════════════════════════════════════════════════════════
+//  FIXTURE TABLE
+// ══════════════════════════════════════════════════════════════
+function renderFixtureTable(fixtures, circuits, fixCircMap, socaZones) {
+  const zoneMap = {};
+  socaZones.forEach(z => z.circuits.forEach(c => { zoneMap[c.id] = z; }));
+  const phaseNames = ['L1','L2','L3'];
+
+  const rows = fixtures.map(f => {
+    const c = fixCircMap[f.uuid];
+    const z = c ? zoneMap[c.id] : null;
+    const phaseBdg = z ? `<span class="bdg bdg-l${z.phase}">${phaseNames[z.phase-1]}</span>` : '—';
+    const circBdg = c ? `<span class="bdg ${c.topology==='chain'?'bdg-chain':'bdg-janus'}">${c.id}</span>` : '—';
+    const socaBdg = z ? `<span class="bdg bdg-soca">S${z.id}</span>` : '—';
+    return `<tr>
+      <td class="mono">${f.fid||'—'}</td>
+      <td>${f.name}</td>
+      <td><span class="tag">${f.layer.replace(/SFX -- |-- /g,'').slice(0,18)}</span></td>
+      <td class="mono">${f.dmx||'<span style="color:var(--red)">—</span>'}</td>
+      <td class="mono">${f.x.toFixed(1)}</td>
+      <td class="mono">${f.y.toFixed(1)}</td>
+      <td class="mono" style="${f.z>1?'color:var(--accent)':''}">${f.z.toFixed(1)}</td>
+      <td class="mono">${f.power}W</td>
+      <td><span class="bdg ${f.hasThrough?'bdg-chain':'bdg-janus'}">${f.hasThrough?'CHAIN':'JANUS'}</span></td>
+      <td>${circBdg} ${socaBdg}</td>
+      <td>${phaseBdg}</td>
+    </tr>`;
   }).join('');
-  document.getElementById('pane-overrides').innerHTML=`<p style="font-size:11px;color:var(--muted);margin-bottom:11px">Override power or chain/Janus per fixture type. Leave blank to use auto-detected values.</p><div class="ov-row hdr"><span>Fixture Type + Source</span><span>Power (W)</span><span>Topology</span><span>Connector</span></div>${rows}`;
+
+  document.getElementById('fixBody').innerHTML = rows || '<tr><td colspan="11" style="text-align:center;color:var(--muted);padding:40px">No fixtures</td></tr>';
 }
 
-function setOv(name,key,value){
-  if(!ST.overrides[name])ST.overrides[name]={};
-  if(key==='power')ST.overrides[name].power=value?parseFloat(value):null;
-  if(key==='hasT')ST.overrides[name].hasT=value==='true'?true:value==='false'?false:null;
-  recalc();
+// ══════════════════════════════════════════════════════════════
+//  OVERRIDES TAB
+// ══════════════════════════════════════════════════════════════
+function renderOverrides() {
+  if (!Object.keys(ST.overrides).length) return;
+
+  const hdr = `<div class="override-row" style="font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)">
+    <span>Fixture Type</span><span>Power (W)</span><span>Connector</span><span>Recalc</span>
+  </div>`;
+
+  const rows = Object.entries(ST.overrides).map(([name, d]) => `
+    <div class="override-row">
+      <span style="font-size:11px" title="${name}">${name.slice(0,35)}${name.length>35?'…':''}</span>
+      <input type="number" value="${d.power}" min="1" max="5000" onchange="ST.overrides['${name.replace(/'/g,"\\'")}'].power=+this.value">
+      <select onchange="ST.overrides['${name.replace(/'/g,"\\'")}'].hasThrough=this.value==='chain'">
+        <option value="janus" ${!d.hasThrough?'selected':''}>Janus</option>
+        <option value="chain" ${d.hasThrough?'selected':''}>Chain (PowerCon Through)</option>
+      </select>
+      <button class="btn btn-ghost btn-xs" onclick="recalc()">Apply</button>
+    </div>`).join('');
+
+  document.getElementById('overrideContent').innerHTML = `
+    <p style="font-size:11px;color:var(--muted);margin-bottom:14px">
+      Override power draw and connector type per fixture. Power from manufacturer spec where known, 300W fallback otherwise.
+      Changes apply when you click Apply or Recalc.
+    </p>
+    <div style="background:var(--s2);border:1px solid var(--border);border-radius:var(--r);padding:12px">
+      ${hdr}${rows}
+    </div>
+    <div style="margin-top:12px;display:flex;gap:8px">
+      <button class="btn btn-accent" onclick="recalc()">↻ Recalculate All</button>
+    </div>`;
 }
 
-// ── Render Diagram ──
-function renderDiagram(socaRuns,fixtures,s){
-  const canvas=document.getElementById('rigCanvas');
-  const W=canvas.clientWidth||900;
-  canvas.width=W;canvas.height=580;
-  const ctx=canvas.getContext('2d');
-  ctx.fillStyle='#1e1e24';ctx.fillRect(0,0,W,580);
-  if(!fixtures.length)return;
-  const xs=fixtures.map(f=>f.x),ys=fixtures.map(f=>f.y);
-  const minX=Math.min(...xs,s.dX)-3,maxX=Math.max(...xs,s.dX)+3;
-  const minY=Math.min(...ys,s.dY)-3,maxY=Math.max(...ys,s.dY)+3;
-  const pad=50,sc=Math.min((W-pad*2)/(maxX-minX||1),(580-pad*2)/(maxY-minY||1));
-  const tx=x=>pad+(x-minX)*sc,ty=y=>580-pad-(y-minY)*sc;
-  const PC={L1:'#e85555',L2:'#55aaee',L3:'#eecc44'};
-  // Soca runs
-  socaRuns.forEach(r=>{
-    const col=PC[r.phase]||'#9966dd';
-    ctx.strokeStyle=col;ctx.lineWidth=2.5;ctx.setLineDash([8,4]);ctx.globalAlpha=.7;
-    ctx.beginPath();ctx.moveTo(tx(s.dX),ty(s.dY));ctx.lineTo(tx(r.fx),ty(r.fy));ctx.stroke();
-    ctx.setLineDash([]);ctx.globalAlpha=1;
-    r.circuits.forEach(c=>c.fixtures.forEach(f=>{
-      ctx.strokeStyle=col;ctx.lineWidth=1;ctx.globalAlpha=.35;
-      ctx.beginPath();ctx.moveTo(tx(r.fx),ty(r.fy));ctx.lineTo(tx(f.x),ty(f.y));ctx.stroke();
-      ctx.globalAlpha=1;
-    }));
-    ctx.fillStyle=col;ctx.beginPath();ctx.arc(tx(r.fx),ty(r.fy),6,0,Math.PI*2);ctx.fill();
-    ctx.fillStyle='#000';ctx.font='bold 8px monospace';ctx.textAlign='center';
-    ctx.fillText('S'+r.id,tx(r.fx),ty(r.fy)+3);
-  });
-  // Fixtures
-  const socaMap={};
-  socaRuns.forEach(r=>r.circuits.forEach(c=>c.fixtures.forEach(f=>socaMap[f.uuid]=r)));
-  fixtures.forEach(f=>{
-    const r=socaMap[f.uuid];
-    const col=r?(PC[r.phase]||'#888'):'#444';
-    const isFlown=f.z>1;
-    ctx.fillStyle=col;ctx.strokeStyle='#0d0d0f';ctx.lineWidth=1;
-    ctx.beginPath();
-    if(isFlown){const r2=5,fx=tx(f.x),fy=ty(f.y);ctx.moveTo(fx,fy-r2);ctx.lineTo(fx+r2,fy);ctx.lineTo(fx,fy+r2);ctx.lineTo(fx-r2,fy);ctx.closePath();}
-    else ctx.arc(tx(f.x),ty(f.y),4,0,Math.PI*2);
-    ctx.fill();ctx.stroke();
-  });
-  // Distro
-  const dx=tx(s.dX),dy=ty(s.dY);
-  ctx.fillStyle='#f0a500';ctx.strokeStyle='#000';ctx.lineWidth=1;
-  ctx.fillRect(dx-9,dy-9,18,18);ctx.strokeRect(dx-9,dy-9,18,18);
-  ctx.fillStyle='#000';ctx.font='bold 10px monospace';ctx.textAlign='center';ctx.fillText('D',dx,dy+4);
-  // Legend
-  document.getElementById('rigLegend').innerHTML=Object.entries(PC).map(([p,c])=>`<div class="leg-i"><div class="leg-dot" style="background:${c}"></div>${p}</div>`).join('')+
-    `<div class="leg-i"><div class="leg-diamond" style="background:#aaa"></div>Flown</div><div class="leg-i"><div class="leg-dot" style="background:#aaa"></div>Ground</div><div class="leg-i"><div class="leg-dot" style="background:#f0a500;border-radius:0"></div>Distro</div>`;
-}
+// ══════════════════════════════════════════════════════════════
+//  RIG DIAGRAM
+// ══════════════════════════════════════════════════════════════
+function renderDiagram(fixtures, circuits, socaZones, s) {
+  const canvas = document.getElementById('rigCanvas');
+  const W = canvas.clientWidth || 900;
+  canvas.width = W; canvas.height = 580;
+  const ctx = canvas.getContext('2d');
+  ctx.fillStyle = '#141417'; ctx.fillRect(0,0,W,580);
 
-// ── Render Warnings ──
-function renderWarnings(warns){
-  document.getElementById('pane-warnings').innerHTML=!warns.length?'<div class="empty"><div class="ei">✅</div><p>No warnings</p></div>':warns.map(w=>`<div class="warn-item ${w.level}"><div class="wi-icon">${w.icon}</div><div class="wi-text"><strong>${w.title}</strong><span>${w.detail}</span></div></div>`).join('');
-}
+  if (!fixtures.length) return;
 
-// ── Export ──
-function exportCSV(){
-  if(!ST.fixtures.length){toast('Load an MVR first',1);return;}
-  const s=S();const pm={},sm={},cm={};
-  ST.socaRuns.forEach(r=>r.circuits.forEach(c=>c.fixtures.forEach(f=>{pm[f.uuid]=r.phase;sm[f.uuid]=r.id;cm[f.uuid]=c.id;})));
-  const lines=[
-    ['Stage Effects Cable Runner — '+document.getElementById('projectName').value],['Generated',new Date().toLocaleString()],[],
-    ['SUMMARY'],['Fixtures',ST.fixtures.length],['Soca Runs',ST.socaRuns.length],['Circuits',ST.circuits.length],
-    ['Total Power kW',(ST.fixtures.reduce((t,f)=>t+f.power,0)/1000).toFixed(2)],
-    ['L1 kW',(ST.phaseLoad.L1/1000).toFixed(2)],['L2 kW',(ST.phaseLoad.L2/1000).toFixed(2)],['L3 kW',(ST.phaseLoad.L3/1000).toFixed(2)],[],
-    ['SOCA RUNS'],['Soca','Phase','Length m','Circuits','Power W','DMX m'],
-    ...ST.socaRuns.map(r=>[`Soca ${r.id}`,r.phase,r.socaLen,r.circuits.length,Math.round(r.tp),r.dmxLen]),
-    [],['ALL FIXTURES'],['FID','Fixture','Layer','DMX','X','Y','Z','Power W','Connector','Through','Circuit','Soca','Phase'],
-    ...ST.fixtures.map(f=>[f.fid,f.name,f.layer,f.dmx||'',f.x.toFixed(2),f.y.toFixed(2),f.z.toFixed(2),f.power,f.ci,f.hasT?'Yes':'No',cm[f.uuid]?`C${cm[f.uuid]}`:'',sm[f.uuid]?`Soca ${sm[f.uuid]}`:'',pm[f.uuid]||'']),
+  const xs = fixtures.map(f=>f.x), ys = fixtures.map(f=>f.y);
+  const minX = Math.min(...xs,s.dX)-3, maxX = Math.max(...xs,s.dX)+3;
+  const minY = Math.min(...ys,s.dY)-3, maxY = Math.max(...ys,s.dY)+3;
+  const pad = 48;
+  const scale = Math.min((W-pad*2)/(maxX-minX||1),(580-pad*2)/(maxY-minY||1));
+  const tx = x => pad+(x-minX)*scale;
+  const ty = y => 580-pad-(y-minY)*scale;
+
+  const PHASE_COLS = ['#e05555','#f0a500','#5590e8'];
+  const SOCA_COLS = [
+    '#9060d8','#5590e8','#f0a500','#50c87a','#e05555','#50d0c8',
+    '#d08050','#8060b0','#c8d050','#50b8d0','#d05090','#90d050'
   ];
-  const csv=lines.map(r=>Array.isArray(r)?r.map(c=>`"${String(c||'').replace(/"/g,'""')}"`).join(','):r).join('\n');
-  const a=document.createElement('a');
-  a.href=URL.createObjectURL(new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8;'}));
-  a.download=(document.getElementById('projectName').value||'cable-runner')+'.csv';a.click();
-  toast('CSV exported');
+
+  // Draw Soca runs (dashed line distro→fanout)
+  socaZones.forEach((z,i) => {
+    const col = SOCA_COLS[i%SOCA_COLS.length];
+    ctx.strokeStyle = col; ctx.lineWidth = 1.5; ctx.setLineDash([5,4]);
+    ctx.beginPath(); ctx.moveTo(tx(s.dX),ty(s.dY)); ctx.lineTo(tx(z.fanoutX),ty(z.fanoutY)); ctx.stroke();
+    ctx.setLineDash([]);
+    // Fanout dot
+    ctx.fillStyle = col; ctx.beginPath(); ctx.arc(tx(z.fanoutX),ty(z.fanoutY),5,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle = col; ctx.font = 'bold 9px monospace'; ctx.textAlign = 'left';
+    ctx.fillText('S'+z.id, tx(z.fanoutX)+7, ty(z.fanoutY)-4);
+  });
+
+  // Build zone/circuit maps for colouring
+  const fixCircMap = {};
+  circuits.forEach(c => c.fixtures.forEach(f => fixCircMap[f.uuid]=c));
+  const circZoneMap = {};
+  socaZones.forEach(z => z.circuits.forEach(c => circZoneMap[c.id]=z));
+
+  // Draw circuit connections (thin lines fixture→fanout or chain)
+  circuits.forEach(c => {
+    const zone = circZoneMap[c.id];
+    if (!zone) return;
+    const col = SOCA_COLS[zone.id%SOCA_COLS.length];
+    ctx.strokeStyle = col; ctx.lineWidth = 0.8; ctx.globalAlpha = 0.4;
+
+    if (c.topology === 'chain') {
+      const sorted = [...c.fixtures].sort((a,b)=>dist(a.x,a.y,zone.fanoutX,zone.fanoutY)-dist(b.x,b.y,zone.fanoutX,zone.fanoutY));
+      let prev = {x:zone.fanoutX,y:zone.fanoutY};
+      sorted.forEach(f => {
+        ctx.beginPath(); ctx.moveTo(tx(prev.x),ty(prev.y)); ctx.lineTo(tx(f.x),ty(f.y)); ctx.stroke();
+        prev = f;
+      });
+    } else {
+      c.fixtures.forEach(f => {
+        ctx.beginPath(); ctx.moveTo(tx(zone.fanoutX),ty(zone.fanoutY)); ctx.lineTo(tx(f.x),ty(f.y)); ctx.stroke();
+      });
+    }
+    ctx.globalAlpha = 1;
+  });
+
+  // Draw fixtures
+  fixtures.forEach(f => {
+    const c = fixCircMap[f.uuid];
+    const zone = c ? circZoneMap[c.id] : null;
+    const col = zone ? SOCA_COLS[zone.id%SOCA_COLS.length] : '#555';
+    const isFlown = f.z > 1;
+    ctx.beginPath();
+    if (isFlown) {
+      const r = 5;
+      ctx.moveTo(tx(f.x),ty(f.y)-r); ctx.lineTo(tx(f.x)+r,ty(f.y));
+      ctx.lineTo(tx(f.x),ty(f.y)+r); ctx.lineTo(tx(f.x)-r,ty(f.y)); ctx.closePath();
+    } else {
+      ctx.arc(tx(f.x),ty(f.y),4,0,Math.PI*2);
+    }
+    ctx.fillStyle = col; ctx.fill();
+    ctx.strokeStyle = '#0c0c0f'; ctx.lineWidth = 1; ctx.stroke();
+  });
+
+  // Distro rack
+  const dx=tx(s.dX), dy=ty(s.dY);
+  ctx.fillStyle='#f0a500'; ctx.fillRect(dx-9,dy-9,18,18);
+  ctx.fillStyle='#000'; ctx.font='bold 9px monospace'; ctx.textAlign='center'; ctx.fillText('D',dx,dy+3);
+
+  // Legend
+  ctx.textAlign='left'; ctx.fillStyle='#74748a'; ctx.font='10px monospace';
+  ctx.fillText('◆ Flown  ● Ground  – Soca run  · Janus/Chain tail  D = Distro', pad, 572);
 }
 
-function exportPDF(){
-  if(!ST.fixtures.length){toast('Load an MVR first',1);return;}
-  const proj=document.getElementById('projectName').value;
-  const totP=ST.fixtures.reduce((t,f)=>t+f.power,0);
-  const s=S();const pm={},sm={};
-  ST.socaRuns.forEach(r=>r.circuits.forEach(c=>c.fixtures.forEach(f=>{pm[f.uuid]=r.phase;sm[f.uuid]=r.id;})));
-  const html=`<!DOCTYPE html><html><head><meta charset="UTF-8"><style>
-    body{font-family:Arial,sans-serif;font-size:9px;color:#111;padding:15px;margin:0}
-    h1{font-size:15px;margin-bottom:3px}.sub{color:#666;font-size:9px;margin-bottom:14px}
-    table{width:100%;border-collapse:collapse;margin-bottom:14px;font-size:8px}
+// ══════════════════════════════════════════════════════════════
+//  WARNINGS
+// ══════════════════════════════════════════════════════════════
+function renderWarnings(warnings) {
+  const badge = document.getElementById('warnBadge');
+  const errors = warnings.filter(w=>w.lvl==='e').length;
+  if (warnings.length) {
+    badge.textContent = warnings.length; badge.style.display='inline';
+  } else {
+    badge.style.display='none';
+  }
+  document.getElementById('warnList').innerHTML = warnings.length
+    ? warnings.map(w=>`<div class="warn-item ${w.lvl}"><div class="wi">${w.icon}</div><div><strong>${w.title}</strong><span>${w.detail}</span></div></div>`).join('')
+    : '<div class="empty"><div class="empty-icon">✅</div><p>No warnings — rig looks clean</p></div>';
+}
+
+// ══════════════════════════════════════════════════════════════
+//  EXPORT
+// ══════════════════════════════════════════════════════════════
+function exportCSV() {
+  if (!ST.fixtures.length) { toast('Load an MVR file first',1); return; }
+  const s = cfg();
+  const rows = [];
+  const proj = document.getElementById('projName').value;
+  rows.push(['Stage Effects Cable Runner — ' + proj]);
+  rows.push(['Generated', new Date().toLocaleString()]);
+  rows.push([]);
+
+  rows.push(['SUMMARY']);
+  rows.push(['Fixtures', ST.fixtures.length]);
+  rows.push(['Circuits', ST.circuits.length]);
+  rows.push(['Soca Runs', ST.socaZones.length]);
+  rows.push(['Total kW', (ST.fixtures.reduce((t,f)=>t+f.power,0)/1000).toFixed(2)]);
+  rows.push([]);
+
+  rows.push(['SOCA ZONES']);
+  rows.push(['Zone','Phase','Soca Length (m)','Circuits','Power (W)','Spare Circuits']);
+  ST.socaZones.forEach(z => rows.push([`Soca ${z.id}`,`L${z.phase}`,z.socaLen,z.circuits.length,Math.round(z.zonePower),s.ways-z.circuits.length]));
+  rows.push([]);
+
+  rows.push(['CIRCUITS']);
+  rows.push(['Circuit','Soca','Phase','Topology','Fixtures','Power (W)']);
+  const czMap = {};
+  ST.socaZones.forEach(z=>z.circuits.forEach(c=>czMap[c.id]=z));
+  ST.circuits.forEach(c => {
+    const z = czMap[c.id];
+    rows.push([c.id, z?`Soca ${z.id}`:'—', z?`L${z.phase}`:'—', c.topology, c.fixtures.map(f=>f.name).join(' | '), Math.round(c.totalPower)]);
+  });
+  rows.push([]);
+
+  rows.push(['ALL FIXTURES']);
+  rows.push(['FID','Fixture','Layer','DMX','Mode','X','Y','Z','Power (W)','Connector','Circuit','Soca','Phase']);
+  const fixCircMap = {};
+  ST.circuits.forEach(c=>c.fixtures.forEach(f=>fixCircMap[f.uuid]=c));
+  ST.fixtures.forEach(f => {
+    const c = fixCircMap[f.uuid], z = c?czMap[c.id]:null;
+    rows.push([f.fid||'',f.name,f.layer,f.dmx||'',f.mode||'',f.x.toFixed(2),f.y.toFixed(2),f.z.toFixed(2),f.power,f.hasThrough?'Chain':'Janus',c?c.id:'',z?`Soca ${z.id}`:'',z?`L${z.phase}`:'']);
+  });
+
+  const csv = rows.map(r=>r.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8;'}));
+  a.download = (proj||'cable-runner')+'.csv'; a.click();
+  toast('Excel CSV exported');
+}
+
+function exportPDF() {
+  if (!ST.fixtures.length) { toast('Load an MVR file first',1); return; }
+  const proj = document.getElementById('projName').value;
+  const s = cfg();
+  const totalKW = (ST.fixtures.reduce((t,f)=>t+f.power,0)/1000).toFixed(1);
+  const czMap = {};
+  ST.socaZones.forEach(z=>z.circuits.forEach(c=>czMap[c.id]=z));
+
+  let html = `<!DOCTYPE html><html><head><meta charset="UTF-8">
+  <style>
+    body{font-family:Arial,sans-serif;font-size:10px;color:#111;padding:20px;margin:0}
+    h1{font-size:16px;margin-bottom:2px} .sub{color:#666;margin-bottom:14px;font-size:10px}
+    table{width:100%;border-collapse:collapse;margin-bottom:14px;font-size:9px}
     th{background:#111;color:#fff;padding:4px 7px;text-align:left}
     td{padding:3px 7px;border-bottom:1px solid #eee}
-    tr:nth-child(even) td{background:#f8f8f8}
-    .sec{font-weight:bold;font-size:10px;margin:12px 0 4px;border-bottom:2px solid #111;padding-bottom:2px}
-    .l1{color:#c03030}.l2{color:#2060aa}.l3{color:#886600}
-    @media print{body{padding:8px}}
+    tr:nth-child(even) td{background:#f9f9f9}
+    .sec{font-weight:700;font-size:11px;margin:14px 0 5px;border-bottom:2px solid #111;padding-bottom:3px}
+    .bdg{display:inline-block;padding:1px 5px;border-radius:2px;font-weight:700;font-size:8px}
+    .soca{background:#e8d8ff;color:#5020a0} .l1{background:#ffe0e0;color:#900} .l2{background:#fff0cc;color:#806000} .l3{background:#d0e8ff;color:#104080}
+    .janus{background:#fff0cc;color:#806000} .chain{background:#d0ffe8;color:#0a6030}
   </style></head><body>
   <h1>Stage Effects — Cable Runner</h1>
-  <div class="sub">${proj} · ${new Date().toLocaleDateString()} · ${ST.fixtures.length} fixtures · ${(totP/1000).toFixed(1)}kW</div>
-  <div class="sec">Phase Balance</div>
-  <table><thead><tr><th>Phase</th><th>Load kW</th><th>Amps</th><th>Soca Runs</th></tr></thead><tbody>
-  ${['L1','L2','L3'].map(p=>`<tr><td class="${p.toLowerCase()}">${p}</td><td>${(ST.phaseLoad[p]/1000).toFixed(2)}</td><td>${(ST.phaseLoad[p]/s.V).toFixed(1)}A</td><td>${(ST.phaseRuns[p]||[]).map(r=>'S'+r.id).join(', ')}</td></tr>`).join('')}
-  </tbody></table>
-  <div class="sec">Soca Pick List</div>
-  <table><thead><tr><th>Soca</th><th>Phase</th><th>Length</th><th>Circuits</th><th>Power</th><th>DMX</th></tr></thead><tbody>
-  ${ST.socaRuns.map(r=>`<tr><td>Soca ${r.id}</td><td class="${r.phase.toLowerCase()}">${r.phase}</td><td>${r.socaLen}m</td><td>${r.circuits.length}</td><td>${Math.round(r.tp)}W</td><td>${r.dmxLen}m</td></tr>`).join('')}
-  </tbody></table>
-  <div class="sec">All Fixtures</div>
-  <table><thead><tr><th>FID</th><th>Fixture</th><th>Layer</th><th>DMX</th><th>Power</th><th>Type</th><th>Soca</th><th>Phase</th></tr></thead><tbody>
-  ${ST.fixtures.map(f=>`<tr><td>${f.fid||'—'}</td><td>${f.name}</td><td>${f.layer.replace('SFX -- ','')}</td><td>${f.dmx||'—'}</td><td>${f.power}W</td><td>${f.hasT?'Chain':'Janus'}</td><td>${sm[f.uuid]?'S'+sm[f.uuid]:'—'}</td><td class="${(pm[f.uuid]||'').toLowerCase()}">${pm[f.uuid]||'—'}</td></tr>`).join('')}
-  </tbody></table></body></html>`;
-  const w=window.open('','_blank');w.document.write(html);w.document.close();setTimeout(()=>w.print(),600);
-}
+  <div class="sub">${proj} · ${new Date().toLocaleDateString()} · ${ST.fixtures.length} fixtures · ${totalKW}kW · ${ST.socaZones.length} Soca runs</div>
+  
+  <div class="sec">Soca Zones & Phase Balance</div>
+  <table><thead><tr><th>Zone</th><th>Phase</th><th>Soca Length</th><th>Circuits</th><th>Power</th><th>Spare</th></tr></thead><tbody>`;
 
-// ── Save / Load ──
-function saveProject(){
-  if(!ST.fixtures.length){toast('Load an MVR first',1);return;}
-  const proj={version:3,name:document.getElementById('projectName').value,savedAt:new Date().toISOString(),
-    settings:['voltage','circuitAmps','loadPct','phases','mainBreaker','socaWays','janusWays','socaSlack','janusMax','dmxSlack','drapePct','distroX','distroY'].reduce((o,k)=>{o[k]=document.getElementById(k).value;return o;},{}),
-    fixtures:ST.fixtures,overrides:ST.overrides,fileName:ST.fileName};
-  const a=document.createElement('a');
-  a.href=URL.createObjectURL(new Blob([JSON.stringify(proj,null,2)],{type:'application/json'}));
-  a.download=(proj.name||'project')+'.cablerunner.json';a.click();toast('Project saved');
-}
-
-function loadProject(){
-  const inp=document.createElement('input');inp.type='file';inp.accept='.json';
-  inp.onchange=e=>{
-    const f=e.target.files[0];if(!f)return;
-    const r=new FileReader();
-    r.onload=ev=>{
-      try{
-        const p=JSON.parse(ev.target.result);
-        document.getElementById('projectName').value=p.name||'Loaded';
-        Object.entries(p.settings||{}).forEach(([k,v])=>{const el=document.getElementById(k);if(el)el.value=v;});
-        ST.fixtures=p.fixtures||[];ST.overrides=p.overrides||{};ST.fileName=p.fileName||'';
-        if(ST.fixtures.length){
-          document.getElementById('dropTitle').textContent='✅ '+(ST.fileName||'Loaded');
-          document.getElementById('dropSub').textContent=ST.fixtures.length+' fixtures';
-          recalc();toast('Loaded: '+p.name);
-        }
-      }catch(e){toast('Invalid project file',1);}
-    };r.readAsText(f);
-  };inp.click();
-}
-
-// ── Utils ──
-function showTab(name){
-  document.querySelectorAll('.tab').forEach((t,i)=>{const ids=['overview','soca','phase','picklist','fixtures','overrides','diagram','warnings'];t.classList.toggle('active',ids[i]===name);});
-  document.querySelectorAll('.pane').forEach(p=>p.classList.toggle('active',p.id==='pane-'+name));
-  if(name==='diagram'&&ST.fixtures.length)renderDiagram(ST.socaRuns,ST.fixtures,S());
-}
-
-function clearAll(){
-  ST={fixtures:[],circuits:[],socaRuns:[],phaseRuns:{L1:[],L2:[],L3:[]},phaseLoad:{L1:0,L2:0,L3:0},warnings:[],overrides:{},gdtfData:{},fileName:''};
-  document.getElementById('dropTitle').textContent='Drop .mvr file here';
-  document.getElementById('dropSub').textContent='or click to browse';
-  document.getElementById('projectName').value='Untitled Project';
-  ['sF','sS','sC','sP','sW'].forEach(id=>document.getElementById(id).textContent='—');
-  ['overview','soca','phase','picklist','overrides','warnings'].forEach(id=>{
-    const msgs={overview:'📦 Load an MVR file to begin',soca:'🔌 Load an MVR file',phase:'⚡ Load an MVR file',picklist:'📋 Load an MVR file',overrides:'⚙️ Load an MVR file',warnings:'✅ Load an MVR file'};
-    document.getElementById('pane-'+id).innerHTML=`<div class="empty"><div class="ei">${msgs[id].split(' ')[0]}</div><p>${msgs[id].slice(2)}</p></div>`;
+  ST.socaZones.forEach(z=>{
+    html+=`<tr><td><span class="bdg soca">SOCA ${z.id}</span></td><td><span class="bdg l${z.phase}">L${z.phase}</span></td><td>${z.socaLen}m</td><td>${z.circuits.length}/${s.ways}</td><td>${Math.round(z.zonePower)}W</td><td>${s.ways-z.circuits.length}</td></tr>`;
   });
-  document.getElementById('fTbody').innerHTML='<tr><td colspan="13" style="text-align:center;padding:40px;color:var(--muted)">No fixtures</td></tr>';
-  const ctx=document.getElementById('rigCanvas').getContext('2d');ctx.clearRect(0,0,9999,9999);
+
+  html+=`</tbody></table><div class="sec">Circuits</div>
+  <table><thead><tr><th>Cct</th><th>Type</th><th>Soca</th><th>Phase</th><th>Power</th><th>Fixtures</th></tr></thead><tbody>`;
+  ST.circuits.forEach(c=>{
+    const z=czMap[c.id];
+    html+=`<tr><td>${c.id}</td><td><span class="bdg ${c.topology}">${c.topology}</span></td><td>${z?`Soca ${z.id}`:'—'}</td><td>${z?`<span class="bdg l${z.phase}">L${z.phase}</span>`:'—'}</td><td>${Math.round(c.totalPower)}W</td><td>${c.fixtures.map(f=>f.name).join(', ')}</td></tr>`;
+  });
+
+  html+=`</tbody></table></body></html>`;
+  const w = window.open('','_blank');
+  w.document.write(html); w.document.close();
+  setTimeout(()=>w.print(),500);
+}
+
+// ══════════════════════════════════════════════════════════════
+//  PROJECT SAVE / LOAD
+// ══════════════════════════════════════════════════════════════
+function saveProject() {
+  if (!ST.fixtures.length) { toast('Nothing to save',1); return; }
+  const proj = {
+    name: document.getElementById('projName').value,
+    savedAt: new Date().toISOString(),
+    settings: ['voltage','circuitA','loadPct','socaWays','phases','phaseBreaker','socaSlack','janusMax','dmxSlack','drape','distroX','distroY'].reduce((o,k)=>{o[k]=document.getElementById(k).value;return o;},{}),
+    fixtures: ST.fixtures,
+    overrides: ST.overrides,
+    fileName: ST.fileName,
+  };
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([JSON.stringify(proj,null,2)],{type:'application/json'}));
+  a.download = (proj.name||'project')+'.cablerunner.json'; a.click();
+  toast('Project saved');
+}
+
+function loadProject() {
+  const inp = document.createElement('input');
+  inp.type='file'; inp.accept='.json';
+  inp.onchange = e => {
+    const file = e.target.files[0]; if(!file) return;
+    const r = new FileReader();
+    r.onload = ev => {
+      try {
+        const p = JSON.parse(ev.target.result);
+        document.getElementById('projName').value = p.name||'';
+        if (p.settings) Object.entries(p.settings).forEach(([k,v])=>{const el=document.getElementById(k);if(el)el.value=v;});
+        ST.fixtures = p.fixtures||[];
+        ST.overrides = p.overrides||{};
+        ST.fileName = p.fileName||'';
+        if (ST.fixtures.length) {
+          document.getElementById('hdrFile').textContent = ST.fileName;
+          setDrop('✅ '+ST.fileName, ST.fixtures.length+' fixtures loaded');
+          if (!Object.keys(ST.overrides).length) ST.overrides = buildOverrides(ST.fixtures);
+          recalc();
+          toast('Project loaded: '+p.name);
+        }
+      } catch(e) { toast('Invalid project file',1); }
+    };
+    r.readAsText(file);
+  };
+  inp.click();
+}
+
+// ══════════════════════════════════════════════════════════════
+//  UI HELPERS
+// ══════════════════════════════════════════════════════════════
+function showTab(name) {
+  const tabs = ['overview','circuits','soca','picklist','fixtures','overrides','diagram','warnings'];
+  document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('on',tabs[i]===name));
+  document.querySelectorAll('.tab-pane').forEach(p=>p.classList.toggle('on',p.id==='tab-'+name));
+  if (name==='diagram'&&ST.fixtures.length) renderDiagram(ST.fixtures,ST.circuits,ST.socaZones,cfg());
+}
+
+function setDrop(title, sub) {
+  document.getElementById('dropTitle').textContent = title;
+  document.getElementById('dropSub').textContent = sub;
+}
+
+function clearAll() {
+  ST = {fixtures:[],circuits:[],socaZones:[],phases:[],warnings:[],overrides:{},fileName:''};
+  setDrop('Drop MVR file here','click to browse · .mvr');
+  document.getElementById('projName').value='Untitled Project';
+  document.getElementById('hdrFile').textContent='';
+  ['s-fix','s-soca','s-circ','s-kw','s-warn'].forEach(id=>document.getElementById(id).textContent='—');
+  ['p1fill','p2fill','p3fill'].forEach(id=>{document.getElementById(id).style.width='0%';});
+  ['p1kw','p2kw','p3kw'].forEach(id=>document.getElementById(id).textContent='0 kW');
+  document.getElementById('ovContent').innerHTML='<div class="empty"><div class="empty-icon">📦</div><p>Load an MVR file to begin</p></div>';
+  document.getElementById('circContent').innerHTML='<div class="empty"><div class="empty-icon">🔌</div><p>Load an MVR file to see circuit breakdown</p></div>';
+  document.getElementById('socaContent').innerHTML='<div class="empty"><div class="empty-icon">🔌</div><p>Load an MVR file to see Soca zones</p></div>';
+  document.getElementById('pickContent').innerHTML='<div class="empty"><div class="empty-icon">📋</div><p>Load an MVR file to generate pick list</p></div>';
+  document.getElementById('fixBody').innerHTML='<tr><td colspan="11" style="text-align:center;color:var(--muted);padding:40px">No fixtures loaded</td></tr>';
+  document.getElementById('overrideContent').innerHTML='<div class="empty"><div class="empty-icon">⚙️</div><p>Load an MVR file to configure fixture overrides</p></div>';
+  document.getElementById('warnList').innerHTML='<div class="empty"><div class="empty-icon">✅</div><p>Load an MVR file first</p></div>';
+  document.getElementById('warnBadge').style.display='none';
   toast('Cleared');
 }
 
-function toast(msg,isErr){
-  const el=document.getElementById('toast');el.textContent=msg;
-  el.style.borderColor=isErr?'var(--red)':'var(--border2)';
-  el.classList.add('show');clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('show'),2800);
+function toast(msg,isErr) {
+  const el=document.getElementById('toast');
+  el.textContent=msg; el.style.borderColor=isErr?'var(--red)':'var(--border)';
+  el.classList.add('show'); setTimeout(()=>el.classList.remove('show'),2500);
 }
 
+// Drag & drop
 const dz=document.getElementById('dropZone');
-dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('over');});
+dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('over')});
 dz.addEventListener('dragleave',()=>dz.classList.remove('over'));
-dz.addEventListener('drop',e=>{e.preventDefault();dz.classList.remove('over');const f=e.dataTransfer.files[0];if(f)handleFile(f);});
+dz.addEventListener('drop',e=>{e.preventDefault();dz.classList.remove('over');const f=e.dataTransfer.files[0];if(f)handleFile(f)});
 </script>
 </body>
 </html>
